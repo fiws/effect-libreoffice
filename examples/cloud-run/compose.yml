@@ -1,0 +1,5 @@
+services:
+  unoserver:
+    build: ./uno.Dockerfile
+  api: 
+    build: ./api.Dockerfile

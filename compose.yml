@@ -1,0 +1,19 @@
+services:
+  # unoserver:
+  #   image: libreofficedocker/libreoffice-unoserver:3.22
+  #   ports:
+  #     - "2004:2004" # uno rest api
+  #     - "2003:2003" # uno api
+  unoserver:
+    build: .
+    ports:
+      - "2003:2003" # uno api
+    volumes:
+      - /tmp/test-convert:/tmp/test-convert
+    user: "1000:1000"
+    environment:
+      - HOME=/tmp
+    develop:
+      watch:
+        - action: rebuild
+          path: ./Dockerfile

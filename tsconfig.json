@@ -1,0 +1,20 @@
+{
+  "exclude": ["node_modules", "dist", "fixtures", "tmp"],
+  "include": ["src/**/*", "tmp/api-draft copy.ts"],
+  "compilerOptions": {
+    "target": "esnext",
+    "lib": [
+      "es2023"
+    ],
+    "strict": true,
+    "skipLibCheck": true,
+    "exactOptionalPropertyTypes": true,
+    "moduleResolution": "nodenext",
+    "module": "nodenext",
+    "plugins": [
+      {
+        "name": "@effect/language-service"
+      }
+    ]
+  }
+}

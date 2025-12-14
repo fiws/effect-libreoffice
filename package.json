@@ -1,0 +1,31 @@
+{
+  "name": "libre-convert-effect",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "vitest run",
+    "type-check": "tsc --noEmit"
+  },
+  "keywords": [],
+  "author": "Filip Weiss <me@fiws.net>",
+  "license": "ISC",
+  "packageManager": "pnpm@10.22.0",
+  "dependencies": {
+    "@effect/platform": "^0.93.3",
+    "effect": "^3.19.6",
+    "fast-xml-parser": "^5.3.2"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.3.7",
+    "@effect/language-service": "^0.56.0",
+    "@effect/platform-node": "^0.101.1",
+    "@effect/vitest": "^0.27.0",
+    "testcontainers": "^11.9.0",
+    "tinybench": "^6.0.0",
+    "tsdown": "^0.16.7",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3",
+    "vitest": "^4.0.14"
+  }
+}

@@ -1,0 +1,5 @@
+node_modules
+*.pdf
+context
+dist
+tmp
