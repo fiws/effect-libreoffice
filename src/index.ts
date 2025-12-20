@@ -2,7 +2,7 @@ import { Command, FileSystem, Path } from "@effect/platform";
 import { Context, Effect, flow, Layer, Match, Stream, String } from "effect";
 import { LibreOfficeError } from "./error";
 import type { OutputPath } from "./types";
-import { UnoClient, UnoError } from "./uno";
+import { UnoClient, UnoError } from "./uno/uno";
 
 const runString = <E, R>(
   stream: Stream.Stream<Uint8Array, E, R>,

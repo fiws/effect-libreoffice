@@ -3,8 +3,8 @@ import path from "node:path";
 import { NodeContext, NodeHttpClient } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 import { Bench } from "tinybench";
-import { LibreOffice } from "./index";
-import { UnoClient, UnoServer } from "./uno";
+import { LibreOffice } from "../index";
+import { UnoClient, UnoServer } from "../uno/uno";
 
 const bench = new Bench({ time: 5000 }); // Run for 5 seconds
 

@@ -1,6 +1,6 @@
 import { Schema } from "effect";
 
-import { ParseXml, StructFromMembers } from "./schema-utils.js";
+import { ParseXml, StructFromMembers } from "./schema-utils";
 
 /**
  * Schema for fault response
