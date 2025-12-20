@@ -1,6 +1,7 @@
 import { Schema } from "effect";
 
-import { ParseXml, StructFromMembers } from "./schema-utils";
+import { StructFromMembers } from "./schema-utils";
+
 
 /**
  * Schema for fault response
@@ -100,5 +101,5 @@ export const UnoEmpty = Schema.Struct({
 export const UnoResponse = Schema.Union(UnoFault, UnoEmpty);
 
 export const decodeUnoResponse = Schema.decodeUnknown(
-  Schema.compose(ParseXml, UnoResponse),
+  UnoResponse,
 );

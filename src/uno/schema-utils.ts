@@ -1,7 +1,4 @@
 import { Schema } from "effect";
-import { XMLParser } from "fast-xml-parser";
-
-const parser = new XMLParser();
 
 const MemberValue = Schema.Union(
   Schema.Struct({ int: Schema.Number }),
@@ -46,8 +43,3 @@ export const StructFromMembers = <Fields extends Schema.Struct.Fields>(
     },
   });
 
-export const ParseXml = Schema.transform(Schema.String, Schema.Unknown, {
-  strict: false,
-  decode: (input) => parser.parse(input) as unknown,
-  encode: (input) => input,
-});

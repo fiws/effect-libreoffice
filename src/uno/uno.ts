@@ -7,6 +7,7 @@ import {
 import { Effect, flow, Layer, Match, Schedule, Schema, String } from "effect";
 import type { OutputPath } from "../types";
 import { decodeUnoResponse } from "./uno-response";
+import { parseXML } from "./xml-parser";
 
 /**
  * Error thrown when the uno server fails to start or when a conversion fails.
@@ -167,6 +168,7 @@ const getReason = Match.type<{ faultCode: number; faultString: string }>().pipe(
 
 const handleResponse = (response: HttpClientResponse.HttpClientResponse) =>
   response.text.pipe(
+    Effect.map(parseXML),
     Effect.flatMap(decodeUnoResponse),
     Effect.flatMap((decoded) => {
       if ("faultString" in decoded) {
