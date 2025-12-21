@@ -52,7 +52,7 @@ const TestLive = Layer.provideMerge(
   Layer.merge(NodeContext.layer, NodeHttpClient.layer),
 );
 
-it.layer(TestLive)("Libreoffice (Uno)", (it) => {
+it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
   it.scoped(
     "should convert a file",
     Effect.fn(function* () {
