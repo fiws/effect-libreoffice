@@ -22,6 +22,7 @@ const UnoServerTest = Layer.scoped(
           .withUser("1000:1000")
           .withBindMounts([{ source: "/tmp", target: "/tmp" }])
           .withEnvironment({ HOME: "/tmp" })
+          .withReuse()
           .withWaitStrategy(
             Wait.forLogMessage(/INFO:unoserver:Started./).withStartupTimeout(
               120_000,

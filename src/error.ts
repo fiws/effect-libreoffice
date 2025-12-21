@@ -7,7 +7,7 @@ type Reason =
   | "BadOutputExtension"
   | "MethodNotFound";
 
-export class LibreOfficeError extends Data.TaggedClass("LibreOfficeError")<{
+export class LibreOfficeError extends Data.TaggedError("LibreOfficeError")<{
   reason: Reason;
   message: string;
   cause?: unknown;

@@ -81,42 +81,38 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
               // Check for specific errors in stderr first, regardless of exit code
               yield* Match.value(String.trim(result)).pipe(
                 Match.when(
-                  String.startsWith("Error: source file could not be loaded"),
+                  String.includes("Error: source file could not be loaded"),
                   () =>
-                    Effect.fail(
-                      new LibreOfficeError({
-                        reason: "InputFileNotFound",
-                        message: result,
-                      }),
-                    ),
+                    new LibreOfficeError({
+                      reason: "InputFileNotFound",
+                      message: result,
+                    }),
                 ),
-                Match.when(String.startsWith("Error: no export filter"), () =>
-                  Effect.fail(
+                Match.when(
+                  String.includes("Error: no export filter"),
+                  () =>
                     new LibreOfficeError({
                       reason: "BadOutputExtension",
                       message: result,
                     }),
-                  ),
                 ),
-                Match.when(String.startsWith("Error: "), () =>
-                  Effect.fail(
+                Match.when(
+                  String.includes("Error: "),
+                  () =>
                     new LibreOfficeError({
                       reason: "Unknown",
                       message: result,
                     }),
-                  ),
                 ),
                 Match.orElse(() => Effect.void),
               );
 
               if (exitCode !== 0) {
-                return Effect.fail(
-                  new LibreOfficeError({
-                    reason: "Unknown",
-                    message:
-                      result || `Process failed with exit code ${exitCode}`,
-                  }),
-                );
+                return yield* new LibreOfficeError({
+                  reason: "Unknown",
+                  message:
+                    result || `Process failed with exit code ${exitCode}`,
+                });
               }
 
               // using the libreoffice cli we can not specify the output file name
@@ -131,17 +127,6 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
               // return output;
             }),
           );
-
-          // using the libreoffice cli we can not specify the output file name
-          // it will be the input file name with the extension changed to the output format
-          const libreOutputPath = path.join(
-            tempDir,
-            String.concat(parsedInput.name, parsedOutput.ext),
-          );
-
-          // so we rename the file to the expected output path
-          yield* fs.copyFile(libreOutputPath, output);
-          // return output;
         }, Effect.scoped),
       };
     }),
