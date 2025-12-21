@@ -32,7 +32,9 @@ const UnoServerTest = Layer.scoped(
         );
         return await image
           .withExposedPorts(2003)
-          .withUser("1000:1000")
+          .withUser(
+            `${process.getuid ? process.getuid() : 1000}:${process.getgid ? process.getgid() : 1000}`,
+          )
           .withBindMounts([{ source: tempDir, target: tempDir }])
           .withEnvironment({ HOME: tempDir })
           .withReuse()
