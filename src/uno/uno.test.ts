@@ -6,9 +6,22 @@ import { GenericContainer, Wait } from "testcontainers";
 import { LibreOffice } from "../index";
 import { testRunning, UnoClient, UnoServer } from "./uno";
 
+class TempDir extends Effect.Service<TempDir>()(
+  "libre-convert-effect/uno/uno.test/TempDir",
+  {
+    scoped: Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      return {
+        dir: yield* fs.makeTempDirectoryScoped(),
+      };
+    }),
+  },
+) {}
+
 const UnoServerTest = Layer.scoped(
   UnoServer,
   Effect.gen(function* () {
+    const { dir: tempDir } = yield* TempDir;
     const container = yield* Effect.acquireRelease(
       Effect.promise(async () => {
         const image = await GenericContainer.fromDockerfile(".").build(
@@ -20,8 +33,8 @@ const UnoServerTest = Layer.scoped(
         return await image
           .withExposedPorts(2003)
           .withUser("1000:1000")
-          .withBindMounts([{ source: "/tmp", target: "/tmp" }])
-          .withEnvironment({ HOME: "/tmp" })
+          .withBindMounts([{ source: tempDir, target: tempDir }])
+          .withEnvironment({ HOME: tempDir })
           .withReuse()
           .withWaitStrategy(
             Wait.forLogMessage(/INFO:unoserver:Started./).withStartupTimeout(
@@ -44,7 +57,8 @@ const UnoServerTest = Layer.scoped(
 
 const UnoLayer = LibreOffice.Uno.pipe(
   Layer.provide(UnoClient.Default),
-  Layer.provide(UnoServerTest),
+  Layer.provideMerge(UnoServerTest),
+  Layer.provideMerge(TempDir.Default),
 );
 
 const TestLive = Layer.provideMerge(
@@ -60,7 +74,9 @@ it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
       const path = yield* Path.Path;
       const libre = yield* LibreOffice;
 
-      const tempDir = yield* fs.makeTempDirectory();
+      const tempDir = yield* fs.makeTempDirectory({
+        directory: (yield* TempDir).dir,
+      });
       const sourceFile = path.join(tempDir, "test.txt");
       const targetFile = path.join(tempDir, "test.out.pdf");
 
@@ -96,7 +112,9 @@ it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
 
-      const tempDir = yield* fs.makeTempDirectory();
+      const tempDir = yield* fs.makeTempDirectory({
+        directory: (yield* TempDir).dir,
+      });
       const sourceFile = path.join(tempDir, "test.txt");
       const targetFile = path.join(tempDir, "test.out.pdf");
 
@@ -123,7 +141,9 @@ it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
       const libre = yield* LibreOffice;
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const tempDir = yield* fs.makeTempDirectory();
+      const tempDir = yield* fs.makeTempDirectory({
+        directory: (yield* TempDir).dir,
+      });
       const sourceFile = path.join(tempDir, "test.txt");
       const targetFile = path.join(tempDir, "test.invalidext");
 
@@ -147,7 +167,9 @@ it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
       const libre = yield* LibreOffice;
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
-      const tempDir = yield* fs.makeTempDirectory();
+      const tempDir = yield* fs.makeTempDirectory({
+        directory: (yield* TempDir).dir,
+      });
       const sourceFile = path.join(tempDir, "test.txt");
       // Try to write to a directory
       const targetFile = tempDir;
