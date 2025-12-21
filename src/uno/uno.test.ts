@@ -3,7 +3,7 @@ import { NodeContext, NodeHttpClient } from "@effect/platform-node";
 import { assert, expect, it } from "@effect/vitest";
 import { Effect, Layer, Predicate } from "effect";
 import { GenericContainer, Wait } from "testcontainers";
-import { LibreOffice } from "./index";
+import { LibreOffice } from "../index";
 import { testRunning, UnoClient, UnoServer } from "./uno";
 
 const UnoServerTest = Layer.scoped(
