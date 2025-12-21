@@ -35,7 +35,14 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
       const result = yield* libre
         .convertLocalFile("./fixtures/test-not-found.txt", "test.out.pdf")
         .pipe(Effect.flip);
-      assert(Predicate.isTagged(result, "LibreOfficeError"));
+
+      expect(result._tag).toBe("LibreOfficeError");
+
+      // assertion for type narrowing
+      assert(
+        Predicate.isTagged(result, "LibreOfficeError"),
+        "result is not LibreOfficeError",
+      );
       expect(result.reason).toBe("InputFileNotFound");
     }),
   );
@@ -85,7 +92,10 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
         .convertLocalFile(sourceFile, targetFile)
         .pipe(Effect.flip);
 
-      assert(Predicate.isTagged(result, "LibreOfficeError"));
+      assert(
+        Predicate.isTagged(result, "LibreOfficeError"),
+        "result is not LibreOfficeError",
+      );
       expect(result.reason).toBe("BadOutputExtension");
     }),
   );
@@ -106,7 +116,10 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
         .convertLocalFile(sourceFile, targetFile)
         .pipe(Effect.flip);
 
-      assert(Predicate.isTagged(result, "LibreOfficeError"));
+      assert(
+        Predicate.isTagged(result, "LibreOfficeError"),
+        "result is not LibreOfficeError",
+      );
       expect(result.reason).toBe("BadOutputExtension");
     }),
   );
