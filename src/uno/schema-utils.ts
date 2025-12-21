@@ -42,4 +42,3 @@ export const StructFromMembers = <Fields extends Schema.Struct.Fields>(
       });
     },
   });
-

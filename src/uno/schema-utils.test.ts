@@ -53,6 +53,6 @@ describe("StructFromMembers", () => {
     });
 
     const input: unknown[] = [];
-    expect(() => Schema.decodeSync(Target)(input as any)).toThrow();
+    expect(() => Schema.decodeSync(Target)(input as unknown)).toThrow();
   });
 });
