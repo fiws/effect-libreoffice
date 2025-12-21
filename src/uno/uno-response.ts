@@ -2,7 +2,6 @@ import { Schema } from "effect";
 
 import { StructFromMembers } from "./schema-utils";
 
-
 /**
  * Schema for fault response
  *
@@ -100,6 +99,4 @@ export const UnoEmpty = Schema.Struct({
 
 export const UnoResponse = Schema.Union(UnoFault, UnoEmpty);
 
-export const decodeUnoResponse = Schema.decodeUnknown(
-  UnoResponse,
-);
+export const decodeUnoResponse = Schema.decodeUnknown(UnoResponse);

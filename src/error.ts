@@ -5,9 +5,10 @@ type Reason =
   | "StartFailed"
   | "Unknown"
   | "BadOutputExtension"
-  | "MethodNotFound";
+  | "MethodNotFound"
+  | "PermissionDenied";
 
-export class LibreOfficeError extends Data.TaggedClass("LibreOfficeError")<{
+export class LibreOfficeError extends Data.TaggedError("LibreOfficeError")<{
   reason: Reason;
   message: string;
   cause?: unknown;

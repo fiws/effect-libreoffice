@@ -3,9 +3,7 @@
   "include": ["src/**/*", "tmp/api-draft copy.ts"],
   "compilerOptions": {
     "target": "esnext",
-    "lib": [
-      "es2023"
-    ],
+    "lib": ["es2023"],
     "strict": true,
     "skipLibCheck": true,
     "exactOptionalPropertyTypes": true,
