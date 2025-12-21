@@ -5,7 +5,7 @@ import {
   type HttpClientResponse,
 } from "@effect/platform";
 import { Effect, flow, Layer, Match, Schedule, Schema, String } from "effect";
-import type { OutputPath } from "../types";
+import type { OutputPath } from "../shared";
 import { decodeUnoResponse } from "./uno-response";
 import { parseXML } from "./xml-parser";
 

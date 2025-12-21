@@ -1,7 +1,6 @@
 import { Command, FileSystem, Path } from "@effect/platform";
 import { Context, Effect, flow, Layer, Match, Stream, String } from "effect";
-import { LibreOfficeError } from "./error";
-import type { OutputPath } from "./types";
+import { LibreOfficeError, type OutputPath } from "./shared";
 import { UnoClient, UnoError } from "./uno/uno";
 
 const runString = <E, R>(
