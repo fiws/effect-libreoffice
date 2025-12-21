@@ -38,6 +38,7 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
 
       expect(result._tag).toBe("LibreOfficeError");
 
+      console.log(result);
       // assertion for type narrowing
       assert(
         Predicate.isTagged(result, "LibreOfficeError"),
