@@ -1,15 +1,30 @@
 {
-  "name": "libre-convert-effect",
+  "name": "effect-libreoffice",
+  "type": "module",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "description": "A effect based LibreOffice converter library",
+  "main": "./dist/index.mjs",
+  "module": "./dist/index.mjs",
+  "author": "Filip Weiss <me@fiws.net>",
+  "license": "ISC",
+  "homepage": "https://github.com/fiws/effect-libreoffice",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fiws/effect-libreoffice.git"
+  },
+  "bugs": {
+    "url": "https://github.com/fiws/effect-libreoffice/issues"
+  },
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
   "scripts": {
+    "build": "tsdown",
     "test": "vitest run",
     "type-check": "tsc --noEmit"
   },
   "keywords": [],
-  "author": "Filip Weiss <me@fiws.net>",
-  "license": "ISC",
   "packageManager": "pnpm@10.22.0",
   "dependencies": {
     "fast-xml-parser": "^5.3.3"
@@ -27,9 +42,10 @@
     "effect": "^3.19.13",
     "testcontainers": "^11.10.0",
     "tinybench": "^6.0.0",
-    "tsdown": "^0.18.1",
+    "tsdown": "^0.18.2",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.16"
-  }
+  },
+  "types": "./dist/index.d.mts"
 }

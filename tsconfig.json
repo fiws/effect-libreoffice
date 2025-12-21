@@ -1,18 +1,24 @@
 {
-  "exclude": ["node_modules", "dist", "fixtures", "tmp"],
-  "include": ["src/**/*", "tmp/api-draft copy.ts"],
   "compilerOptions": {
     "target": "esnext",
     "lib": ["es2023"],
+    "moduleDetection": "force",
+    "module": "preserve",
+    "moduleResolution": "bundler",
+    "resolveJsonModule": true,
     "strict": true,
+    "noUnusedLocals": true,
+    "declaration": true,
+    "emitDeclarationOnly": true,
+    "esModuleInterop": true,
+    "isolatedModules": true,
+    "verbatimModuleSyntax": true,
     "skipLibCheck": true,
-    "exactOptionalPropertyTypes": true,
-    "moduleResolution": "nodenext",
-    "module": "nodenext",
     "plugins": [
       {
         "name": "@effect/language-service"
       }
     ]
-  }
+  },
+  "include": ["src"]
 }

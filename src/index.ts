@@ -17,6 +17,7 @@ export class LibreOfficeCmd extends Context.Reference<LibreOfficeCmd>()(
 export class LibreOffice extends Effect.Service<LibreOffice>()(
   "libre-convert-effect/index/LibreOffice",
   {
+    // #region Default
     scoped: Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
@@ -25,8 +26,15 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
       return {
         /**
          * Converts a file to a different format.
-         * @param input The input file path.
-         * @param output The output file path.
+         *
+         * ### Example
+         *
+         * ```ts
+         * const program = Effect.gen(function* () {
+         *   const libre = yield* LibreOffice;
+         *   yield* libre.convertLocalFile("/path/to/input.docx", "/path/to/output.pdf");
+         * });
+         * ```
          */
         convertLocalFile: Effect.fn(function* (
           input: string,
@@ -52,7 +60,7 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
             );
           }
 
-          // we need a temporary directory to ensure parallel conversions do not conflict
+          // we need a temporary directory to ensure conversions do not conflict
           const tempDir = yield* fs.makeTempDirectoryScoped({
             prefix: "effect-libreoffice-",
           });
@@ -132,16 +140,20 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
 
               // so we rename the file to the expected output path
               yield* fs.copyFile(libreOutputPath, output);
-              // return output;
+
+              // (temp directory is cleaned up by finalizer from makeTempDirectoryScoped)
             }),
           );
         }, Effect.scoped),
       };
     }),
+    // #endregion
   },
 ) {
+  // #region Uno
   /**
-   * The Uno layer uses a unoserver to convert files.
+   * The Uno layer uses a unoserver to convert files. It is much more
+   * performant than the cli but requires a unoserver to be running.
    */
   static Uno = Layer.scoped(
     LibreOffice,
@@ -165,4 +177,5 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
       });
     }),
   );
+  // #endregion
 }

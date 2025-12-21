@@ -23,7 +23,7 @@ const UnoServerTest = Layer.scoped(
   Effect.gen(function* () {
     const { dir: tempDir } = yield* TempDir;
     const container = yield* Effect.acquireRelease(
-      Effect.promise(async () => {
+      Effect.tryPromise(async () => {
         const image = await GenericContainer.fromDockerfile(".").build(
           "fiws/libreoffice-unoserver:latest",
           {
