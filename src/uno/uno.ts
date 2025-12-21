@@ -20,6 +20,7 @@ export class UnoError extends Schema.TaggedError<UnoError>()("UnoError", {
     "InputFileNotFound",
     "BadOutputExtension",
     "MethodNotFound",
+    "PermissionDenied",
   ),
   cause: Schema.optional(Schema.Unknown),
 }) {}
@@ -162,6 +163,20 @@ const getReason = Match.type<{ faultCode: number; faultString: string }>().pipe(
       faultString: String.includes("is not supported"),
     },
     () => "MethodNotFound" as const,
+  ),
+  Match.when(
+    {
+      faultCode: 1,
+      faultString: String.includes("PermissionError"),
+    },
+    () => "PermissionDenied" as const,
+  ),
+  Match.when(
+    {
+      faultCode: 1,
+      faultString: String.includes("Permission denied"),
+    },
+    () => "PermissionDenied" as const,
   ),
   Match.orElse(() => "Unknown" as const),
 );

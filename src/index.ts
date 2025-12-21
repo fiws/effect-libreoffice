@@ -97,6 +97,14 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
                     }),
                 ),
                 Match.when(
+                  String.includes("Permission denied"),
+                  () =>
+                    new LibreOfficeError({
+                      reason: "PermissionDenied",
+                      message: result,
+                    }),
+                ),
+                Match.when(
                   String.includes("Error: "),
                   () =>
                     new LibreOfficeError({
