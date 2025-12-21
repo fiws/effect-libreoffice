@@ -1,13 +1,13 @@
 # effect-libreoffice
 
-A powerful Effect-based wrapper for LibreOffice, providing multiple strategies for document conversion.
+A Effect-based wrapper for LibreOffice, providing multiple strategies for document conversion.
 
 ## Implementations
 
 This library offers two distinct implementations for interacting with LibreOffice:
 
 1.  **LibreOfficeCmd (Default)**: Uses the `soffice` command-line tool directly.
-2.  **UnoClient (Uno)**: Connects to a running `unoserver` instance via XML-RPC.
+2.  **UnoClient (Uno)**: Connects to a running `unoserver` instance.
 
 ### Comparison
 
@@ -15,8 +15,7 @@ This library offers two distinct implementations for interacting with LibreOffic
 | :-------------- | :--------------------------------------- | :----------------------------------------- |
 | **Method**      | Spawns a new process for each conversion | Connects to a long-running server          |
 | **Performance** | Slower (~440ms/file)                     | Fast (~60ms/file)                          |
-| **Concurrency** | Limited to 1 (via Semaphore)             | Single-threaded (queued)                   |
-| **Setup**       | Requires LibreOffice installed locally   | Requires `unoserver` (e.g., Docker)        |
+| **Setup**       | Requires LibreOffice installed locally   | Requires `unoserver`                       |
 | **Best For**    | CLI tools, low volume, simple setup      | Servers, high volume, performance critical |
 
 ## Usage
@@ -26,9 +25,9 @@ This library offers two distinct implementations for interacting with LibreOffic
 Best for quick scripts or when you don't want to manage a separate server.
 
 ```typescript
-import { LibreOffice } from "libre-convert-effect";
+import { LibreOffice } from "effect-libreoffice";
 import { NodeContext } from "@effect/platform-node";
-import { Effect, Layer } from "effect";
+import { Effect } from "effect";
 
 const program = Effect.gen(function* () {
   const libre = yield* LibreOffice;
@@ -54,10 +53,12 @@ services:
     image: libreofficedocker/libreoffice-unoserver:3.22
     ports:
       - "2003:2003"
+    volumes:
+      - /tmp:/tmp # some shared directory where files can be written and read
 ```
 
 ```typescript
-import { LibreOffice, UnoClient, UnoServer } from "libre-convert-effect";
+import { LibreOffice, UnoClient, UnoServer } from "effect-libreoffice";
 import { NodeContext, NodeHttpClient } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 
