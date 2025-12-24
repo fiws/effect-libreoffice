@@ -19,8 +19,12 @@
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "build": "tsdown",
+    "prepublishOnly": "pnpm build",
     "test": "vitest run",
     "type-check": "tsc --noEmit"
   },
