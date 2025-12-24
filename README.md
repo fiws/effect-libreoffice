@@ -1,5 +1,9 @@
 # effect-libreoffice
 
+![NPM Version](https://img.shields.io/npm/v/effect-libreoffice)
+![GitHub License](https://img.shields.io/github/license/fiws/effect-libreoffice)
+![Effect: yes](https://img.shields.io/badge/effect-yes-blue)
+
 A Effect-based wrapper for LibreOffice, providing multiple strategies for document conversion.
 
 ## Implementations
