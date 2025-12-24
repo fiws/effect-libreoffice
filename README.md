@@ -15,12 +15,12 @@ This library offers two distinct implementations for interacting with LibreOffic
 
 ### Comparison
 
-| Feature         | LibreOfficeCmd (Default)                 | UnoClient (Uno)                            |
-| :-------------- | :--------------------------------------- | :----------------------------------------- |
-| **Method**      | Spawns a new process for each conversion | Connects to a long-running server          |
-| **Performance** | Slower (~440ms/file)                     | Fast (~60ms/file)                          |
-| **Setup**       | Requires LibreOffice installed locally   | Requires `unoserver`                       |
-| **Best For**    | CLI tools, low volume, simple setup      | Servers, high volume, performance critical |
+| Feature         | LibreOfficeCmd (Default)                 | UnoClient (Uno)                                            |
+| :-------------- | :--------------------------------------- | :--------------------------------------------------------- |
+| **Method**      | Spawns a new process for each conversion | Connects to a long-running server                          |
+| **Performance** | Slower (~440ms/file)                     | Fast (~60ms/file)                                          |
+| **Setup**       | Requires LibreOffice installed locally   | Requires [unoserver](https://github.com/unoconv/unoserver) |
+| **Best For**    | CLI tools, low volume, simple setup      | Servers, high volume, performance critical                 |
 
 ## Usage
 
