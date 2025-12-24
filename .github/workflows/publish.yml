@@ -10,7 +10,11 @@ permissions:
   contents: read
 
 jobs:
+  ci:
+    uses: ./.github/workflows/ci.yml
+
   publish:
+    needs: ci
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -22,5 +26,4 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - run: pnpm install
       - run: pnpm build
-      - run: pnpm test
       - run: pnpm publish
