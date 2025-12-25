@@ -2,7 +2,7 @@ import { FileSystem, Path } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import { assert, expect, it } from "@effect/vitest";
 import { Effect, Layer, Predicate } from "effect";
-import { LibreOffice } from "./index";
+import { LibreOffice } from "effect-libreoffice";
 
 const TestLive = Layer.provideMerge(LibreOffice.Default, NodeContext.layer);
 

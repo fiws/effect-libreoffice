@@ -5,5 +5,8 @@ export default defineConfig({
     environment: "node",
     include: ["src/**/*.test.ts"],
     includeSource: ["src/**/*.ts"],
+    alias: {
+      "effect-libreoffice": "src/index.ts",
+    },
   },
 });

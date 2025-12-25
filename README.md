@@ -26,29 +26,49 @@ This library offers two distinct implementations for interacting with LibreOffic
 
 ### Default Implementation (CLI)
 
-Best for quick scripts or when you don't want to manage a separate server.
+Best for quick scripts or when you can't run a unoserver.
 
 ```typescript
-import { LibreOffice } from "effect-libreoffice";
 import { NodeContext } from "@effect/platform-node";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
+import { LibreOffice } from "effect-libreoffice";
 
 const program = Effect.gen(function* () {
   const libre = yield* LibreOffice;
   yield* libre.convertLocalFile("input.docx", "output.pdf");
 });
 
-// Provide the Default layer (which uses LibreOfficeCmd) and NodeContext
-program.pipe(
-  Effect.provide(LibreOffice.Default),
-  Effect.provide(NodeContext.layer),
-  Effect.runPromise
+const Layers = LibreOffice.Default.pipe(Layer.provide(NodeContext.layer));
+
+program.pipe(Effect.provide(Layers), Effect.runPromise);
+```
+
+### Uno Implementation (Start Server)
+
+Best for servers, has a lot better performance. This starts a unoserver for you. You will need to have [unoserver](https://github.com/unoconv/unoserver) binary installed and available in your PATH.
+
+```typescript
+import { NodeContext, NodeHttpClient } from "@effect/platform-node";
+import { Effect, Layer } from "effect";
+import { LibreOffice, UnoServer } from "effect-libreoffice";
+
+const program = Effect.gen(function* () {
+  const libre = yield* LibreOffice;
+  yield* libre.convertLocalFile("input.docx", "output.pdf");
+});
+
+const Layers = LibreOffice.Uno.pipe(
+  Layer.provide(UnoServer.Default), // This will start a unoserver
+  Layer.provide(NodeContext.layer),
+  Layer.provide(NodeHttpClient.layer)
 );
+
+program.pipe(Effect.provide(Layers), Effect.runPromise);
 ```
 
 ### Uno Implementation (Remote)
 
-Best for server environments. You need a running `unoserver`.
+If you want to manage the [unoserver](https://github.com/unoconv/unoserver) yourself, you can use the remote implementation of Uno.
 
 ```yaml
 # compose.yml
@@ -62,25 +82,20 @@ services:
 ```
 
 ```typescript
-import { LibreOffice, UnoClient, UnoServer } from "effect-libreoffice";
-import { NodeContext, NodeHttpClient } from "@effect/platform-node";
+import { NodeHttpClient } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
+import { LibreOffice, UnoServer } from "effect-libreoffice";
 
 const program = Effect.gen(function* () {
   const libre = yield* LibreOffice;
   yield* libre.convertLocalFile("input.docx", "output.pdf");
 });
 
-const UnoLayer = LibreOffice.Uno.pipe(
-  Layer.provide(UnoClient.Default),
+const UnoLayers = LibreOffice.Uno.pipe(
+  Layer.provide(NodeHttpClient.layerUndici),
   Layer.provide(UnoServer.Remote) // Defaults to localhost:2003
-  // Layer.provide(UnoServer.remoteWithURL("http://unoserver:2003/RPC2"))
+  // or: Layer.provide(UnoServer.remoteWithURL("http://localhost:1111/custom/RPC2"))
 );
 
-program.pipe(
-  Effect.provide(UnoLayer),
-  Effect.provide(NodeHttpClient.layer),
-  Effect.provide(NodeContext.layer),
-  Effect.runPromise
-);
+program.pipe(Effect.provide(UnoLayers), Effect.runPromise);
 ```

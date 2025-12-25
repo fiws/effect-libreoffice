@@ -15,6 +15,9 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": ["vitest/importMeta"],
+    "paths": {
+      "effect-libreoffice": ["./src/index.ts"]
+    },
     "plugins": [
       {
         "name": "@effect/language-service"
