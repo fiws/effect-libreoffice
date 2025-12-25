@@ -3,3 +3,4 @@ node_modules
 context
 dist
 tmp
+src/misc/scratchpad.ts
