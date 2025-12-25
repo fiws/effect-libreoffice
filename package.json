@@ -2,7 +2,7 @@
   "name": "effect-libreoffice",
   "type": "module",
   "version": "1.0.5",
-  "description": "A effect based LibreOffice converter library",
+  "description": "A effect based LibreOffice converter library. Can convert docx to pdf.",
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
   "author": "Filip Weiss <me@fiws.net>",
@@ -28,7 +28,14 @@
     "test": "vitest run",
     "type-check": "tsc --noEmit"
   },
-  "keywords": [],
+  "keywords": [
+    "effect",
+    "effect-ts",
+    "libreoffice",
+    "convert",
+    "docx",
+    "pdf"
+  ],
   "packageManager": "pnpm@10.22.0",
   "dependencies": {
     "fast-xml-parser": "^5.3.3"
