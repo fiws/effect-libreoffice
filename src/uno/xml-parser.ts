@@ -2,6 +2,12 @@ import { XMLParser } from "fast-xml-parser";
 
 const parser = new XMLParser();
 
+/**
+ * Parses an XML string into a JavaScript object.
+ *
+ * @param input - The XML string to parse.
+ * @returns The parsed object.
+ */
 export function parseXML(input: string): unknown {
   return parser.parse(input);
 }

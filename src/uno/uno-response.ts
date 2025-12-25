@@ -99,4 +99,7 @@ export const UnoEmpty = Schema.Struct({
 
 export const UnoResponse = Schema.Union(UnoFault, UnoEmpty);
 
+/**
+ * Decodes an unknown object into a valid {@link UnoResponse}.
+ */
 export const decodeUnoResponse = Schema.decodeUnknown(UnoResponse);

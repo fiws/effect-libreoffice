@@ -25,6 +25,12 @@ export class UnoError extends Schema.TaggedError<UnoError>()("UnoError", {
   cause: Schema.optional(Schema.Unknown),
 }) {}
 
+/**
+ * Tests if the uno server is running at the given URL by attempting to list its methods.
+ *
+ * @param url - The URL of the uno server to test.
+ * @returns An Effect that succeeds if the server is responsive, or fails with a {@link UnoError}.
+ */
 export const testRunning = Effect.fn(function* (url: string) {
   return yield* Effect.tryPromise({
     try: () =>
@@ -49,6 +55,12 @@ export const testRunning = Effect.fn(function* (url: string) {
   );
 });
 
+/**
+ * Ensures the uno server is running at the given URL, retrying with a schedule if it's not yet ready.
+ *
+ * @param url - The URL of the uno server to wait for.
+ * @returns An Effect that succeeds once the server is responsive.
+ */
 export const ensureRunning = flow(
   testRunning,
   Effect.retry({
@@ -93,6 +105,8 @@ export class UnoServer extends Effect.Service<UnoServer>()(
   },
 ) {
   /**
+   * Creates a {@link UnoServer} that will connect to a remote uno server at the given URL.
+   *
    * Note that while any url can be passed, libreoffice will expect the given files
    * to be on disk and will write them to disk, so to be actually useful the server
    * should probably utilize the same file system as your process.
@@ -115,6 +129,13 @@ export class UnoServer extends Effect.Service<UnoServer>()(
   static Remote = UnoServer.remoteWithURL("http://localhost:2003/RPC2");
 }
 
+/**
+ * Constructs an XML-RPC request body for document conversion.
+ *
+ * @param input - The absolute path to the input document.
+ * @param output - The absolute path where the converted document should be saved.
+ * @returns A HttpClientRequest configured for the conversion.
+ */
 const convertRequest = (input: string, output: string) => {
   const body = `<?xml version="1.0"?>
 <methodCall>
@@ -130,6 +151,13 @@ const convertRequest = (input: string, output: string) => {
   return HttpClientRequest.post("").pipe(HttpClientRequest.bodyText(body));
 };
 
+/**
+ * Constructs an XML-RPC request body for document comparison.
+ *
+ * @param input - The absolute path to the original document.
+ * @param output - The absolute path where the comparison result should be saved.
+ * @returns A HttpClientRequest configured for the comparison.
+ */
 const compareRequest = (input: string, output: string) => {
   const body = `<?xml version="1.0"?>
 <methodCall>
@@ -145,6 +173,9 @@ const compareRequest = (input: string, output: string) => {
   return HttpClientRequest.post("").pipe(HttpClientRequest.bodyText(body));
 };
 
+/**
+ * Maps a fault response from the Uno server to a specific {@link UnoError} reason.
+ */
 const getReason = Match.type<{ faultCode: number; faultString: string }>().pipe(
   Match.when(
     { faultCode: 1, faultString: String.includes("does not exist") },
@@ -197,6 +228,10 @@ const handleResponse = (response: HttpClientResponse.HttpClientResponse) =>
     }),
   );
 
+/**
+ * UnoClient service. Provides a high-level API for interacting with a Uno server
+ * to perform document conversions and comparisons.
+ */
 export class UnoClient extends Effect.Service<UnoClient>()(
   "libre-convert-effect/uno/UnoClient",
   {
@@ -209,12 +244,29 @@ export class UnoClient extends Effect.Service<UnoClient>()(
       );
 
       return {
+        /**
+         * The underlying HTTP client used by the UnoClient.
+         */
         client,
+        /**
+         * Converts a document from the specified input path to the specified output path.
+         *
+         * @param input - The absolute path to the input document.
+         * @param output - The absolute path where the converted document should be saved.
+         * @returns An Effect that performs the conversion and returns the HTTP response on success.
+         */
         convert(input: string, output: OutputPath) {
           return client
             .execute(convertRequest(input, output))
             .pipe(Effect.flatMap(handleResponse));
         },
+        /**
+         * Compares two documents and saves the comparison result to the specified output path.
+         *
+         * @param input - The absolute path to the original document.
+         * @param output - The absolute path where the comparison result (e.g., a PDF with tracked changes) should be saved.
+         * @returns An Effect that performs the comparison and returns the HTTP response on success.
+         */
         compare(input: string, output: string) {
           return client
             .execute(compareRequest(input, output))

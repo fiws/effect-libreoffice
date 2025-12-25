@@ -4,7 +4,7 @@ import { assert, expect, it } from "@effect/vitest";
 import { Effect, Layer, Predicate } from "effect";
 import { GenericContainer, Wait } from "testcontainers";
 import { LibreOffice } from "../index";
-import { testRunning, UnoClient, UnoServer } from "./uno";
+import { testRunning, UnoServer } from "./uno";
 
 class TempDir extends Effect.Service<TempDir>()(
   "libre-convert-effect/uno/uno.test/TempDir",
@@ -58,7 +58,6 @@ const UnoServerTest = Layer.scoped(
 );
 
 const UnoLayer = LibreOffice.Uno.pipe(
-  Layer.provide(UnoClient.Default),
   Layer.provideMerge(UnoServerTest),
   Layer.provideMerge(TempDir.Default),
 );

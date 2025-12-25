@@ -38,9 +38,32 @@ const program = Effect.gen(function* () {
   yield* libre.convertLocalFile("input.docx", "output.pdf");
 });
 
-// Provide the Default layer (which uses LibreOfficeCmd) and NodeContext
 program.pipe(
-  Effect.provide(LibreOffice.Default),
+  Effect.provide(LibreOffice.Default), // Use the CLI implementation
+  Effect.provide(NodeContext.layer),
+  Effect.runPromise
+);
+```
+
+### Uno Implementation (Start Server)
+
+```typescript
+import { LibreOffice, UnoClient, UnoServer } from "effect-libreoffice";
+import { NodeContext, NodeHttpClient } from "@effect/platform-node";
+import { Effect, Layer } from "effect";
+
+const program = Effect.gen(function* () {
+  const libre = yield* LibreOffice;
+  yield* libre.convertLocalFile("input.docx", "output.pdf");
+});
+
+const UnoLayer = LibreOffice.Uno.pipe(
+  Layer.provide(UnoServer.Default) // This will start a unoserver
+);
+
+program.pipe(
+  Effect.provide(UnoLayer),
+  Effect.provide(NodeHttpClient.layer),
   Effect.provide(NodeContext.layer),
   Effect.runPromise
 );
@@ -48,7 +71,7 @@ program.pipe(
 
 ### Uno Implementation (Remote)
 
-Best for server environments. You need a running `unoserver`.
+If you want to manage the unoserver yourself, you can use the remote implementation of Uno.
 
 ```yaml
 # compose.yml
@@ -72,9 +95,8 @@ const program = Effect.gen(function* () {
 });
 
 const UnoLayer = LibreOffice.Uno.pipe(
-  Layer.provide(UnoClient.Default),
   Layer.provide(UnoServer.Remote) // Defaults to localhost:2003
-  // Layer.provide(UnoServer.remoteWithURL("http://unoserver:2003/RPC2"))
+  // Layer.provide(UnoServer.remoteWithURL("http://localhost:1111/custom/RPC2"))
 );
 
 program.pipe(

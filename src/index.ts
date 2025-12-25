@@ -1,6 +1,7 @@
 import { Command, FileSystem, Path } from "@effect/platform";
 import { Context, Effect, flow, Layer, Match, Stream, String } from "effect";
 import { LibreOfficeError, type OutputPath } from "./shared";
+import type { UnoServer } from "./uno/uno";
 import { UnoClient, UnoError } from "./uno/uno";
 
 const runString = <E, R>(
@@ -8,11 +9,34 @@ const runString = <E, R>(
 ): Effect.Effect<string, E, R> =>
   stream.pipe(Stream.decodeText(), Stream.runFold(String.empty, String.concat));
 
+/**
+ * LibreOfficeCmd service. Used to specify the command and base arguments for spawning LibreOffice.
+ * Defaults to `["soffice", "--headless"]`.
+ */
 export class LibreOfficeCmd extends Context.Reference<LibreOfficeCmd>()(
   "libre-convert-effect/index/LibreOfficeCmd",
   { defaultValue: () => ["soffice", "--headless"] },
 ) {}
 
+/**
+ * LibreOffice service. Provides methods for document conversion using LibreOffice.
+ * The `Default` implementation uses the LibreOffice CLI directly.
+ *
+ * ## Example
+ *
+ * ```ts
+ * const program = Effect.gen(function* () {
+ *   const libre = yield* LibreOffice;
+ *   yield* libre.convertLocalFile("/path/to/input.docx", "/path/to/output.pdf");
+ * })
+ *
+ * program.pipe(
+ *   Effect.provide(LibreOffice.Default),
+ *   Effect.provide(NodeContext.layer),
+ *   Effect.runPromise
+ * );
+ * ```
+ */
 export class LibreOffice extends Effect.Service<LibreOffice>()(
   "libre-convert-effect/index/LibreOffice",
   {
@@ -152,7 +176,9 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
   // #region Uno
   /**
    * The Uno layer uses a unoserver to convert files. It is much more
-   * performant than the cli but requires a unoserver to be running.
+   * performant than the cli but requires you to provide a {@link UnoServer}
+   * which in turn either requires a running unoserver or the `unoserver`
+   * binary to be available in your PATH (eg. installed via pip).
    */
   static Uno = Layer.scoped(
     LibreOffice,
@@ -174,7 +200,7 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
           ),
         ),
       });
-    }),
+    }).pipe(Effect.provide(UnoClient.Default)),
   );
   // #endregion
 }
