@@ -1,7 +1,7 @@
 {
   "name": "effect-libreoffice",
   "type": "module",
-  "version": "1.0.5",
+  "version": "1.0.6",
   "description": "A effect based LibreOffice converter library. Can convert docx to pdf.",
   "main": "./dist/index.mjs",
   "module": "./dist/index.mjs",
