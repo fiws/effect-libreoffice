@@ -26,7 +26,7 @@ This library offers two distinct implementations for interacting with LibreOffic
 
 ### Default Implementation (CLI)
 
-Best for quick scripts or when you don't want to manage a separate server.
+Best for quick scripts or when you can't run a unoserver.
 
 ```typescript
 import { NodeContext } from "@effect/platform-node";
@@ -44,6 +44,8 @@ program.pipe(Effect.provide(Layers), Effect.runPromise);
 ```
 
 ### Uno Implementation (Start Server)
+
+Best for servers, has a lot better performance. This starts a unoserver for you. You will need to have [unoserver](https://github.com/unoconv/unoserver) binary installed and available in your PATH.
 
 ```typescript
 import { NodeContext, NodeHttpClient } from "@effect/platform-node";
@@ -66,7 +68,7 @@ program.pipe(Effect.provide(Layers), Effect.runPromise);
 
 ### Uno Implementation (Remote)
 
-If you want to manage the unoserver yourself, you can use the remote implementation of Uno.
+If you want to manage the [unoserver](https://github.com/unoconv/unoserver) yourself, you can use the remote implementation of Uno.
 
 ```yaml
 # compose.yml
