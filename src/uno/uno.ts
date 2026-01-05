@@ -214,7 +214,7 @@ const getReason = Match.type<{ faultCode: number; faultString: string }>().pipe(
 
 const handleResponse = (response: HttpClientResponse.HttpClientResponse) =>
   response.text.pipe(
-    Effect.map(parseXML),
+    Effect.flatMap(parseXML),
     Effect.flatMap(decodeUnoResponse),
     Effect.flatMap((decoded) => {
       if ("faultString" in decoded) {
