@@ -73,7 +73,7 @@ export const ensureRunning = flow(
  * UnoServer service. The default implementation will try to spawn a new `unoserver` process.
  */
 export class UnoServer extends Effect.Service<UnoServer>()(
-  "libre-convert-effect/index/UnoServer",
+  "effect-libreoffice/index/UnoServer",
   {
     scoped: Effect.gen(function* () {
       const acquire = Effect.gen(function* () {
@@ -233,7 +233,7 @@ const handleResponse = (response: HttpClientResponse.HttpClientResponse) =>
  * to perform document conversions and comparisons.
  */
 export class UnoClient extends Effect.Service<UnoClient>()(
-  "libre-convert-effect/uno/UnoClient",
+  "effect-libreoffice/uno/UnoClient",
   {
     scoped: Effect.gen(function* () {
       const { url } = yield* UnoServer;

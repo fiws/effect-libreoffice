@@ -15,9 +15,45 @@ const runString = <E, R>(
  * Defaults to `["soffice", "--headless"]`.
  */
 export class LibreOfficeCmd extends Context.Reference<LibreOfficeCmd>()(
-  "libre-convert-effect/index/LibreOfficeCmd",
+  "effect-libreoffice/index/LibreOfficeCmd",
   { defaultValue: () => ["soffice", "--headless"] },
 ) {}
+
+const mapOutputMessage = Match.type<string>().pipe(
+  Match.when(
+    String.includes("Error: source file could not be loaded"),
+    (message) =>
+      new LibreOfficeError({
+        reason: "InputFileNotFound",
+        message,
+      }),
+  ),
+  Match.when(
+    String.includes("Error: no export filter"),
+    (message) =>
+      new LibreOfficeError({
+        reason: "BadOutputExtension",
+        message,
+      }),
+  ),
+  Match.when(
+    String.includes("Permission denied"),
+    (message) =>
+      new LibreOfficeError({
+        reason: "PermissionDenied",
+        message,
+      }),
+  ),
+  Match.when(
+    String.includes("Error: "),
+    (message) =>
+      new LibreOfficeError({
+        reason: "Unknown",
+        message,
+      }),
+  ),
+  Match.orElse(() => Effect.void),
+);
 
 /**
  * LibreOffice service. Provides methods for document conversion using LibreOffice.
@@ -39,7 +75,7 @@ export class LibreOfficeCmd extends Context.Reference<LibreOfficeCmd>()(
  * ```
  */
 export class LibreOffice extends Effect.Service<LibreOffice>()(
-  "libre-convert-effect/index/LibreOffice",
+  "effect-libreoffice/index/LibreOffice",
   {
     // #region Default
     scoped: Effect.gen(function* () {
@@ -75,12 +111,10 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
                 Effect.catchAll(() => Effect.succeed(false)),
               )
             ) {
-              return yield* Effect.fail(
-                new LibreOfficeError({
-                  reason: "BadOutputExtension",
-                  message: "Output path is a directory",
-                }),
-              );
+              return yield* new LibreOfficeError({
+                reason: "BadOutputExtension",
+                message: "Output path is a directory",
+              });
             }
 
             // we need a temporary directory to ensure conversions do not conflict
@@ -110,41 +144,7 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
                 );
 
                 // Check for specific errors in stderr first, regardless of exit code
-                yield* Match.value(String.trim(result)).pipe(
-                  Match.when(
-                    String.includes("Error: source file could not be loaded"),
-                    () =>
-                      new LibreOfficeError({
-                        reason: "InputFileNotFound",
-                        message: result,
-                      }),
-                  ),
-                  Match.when(
-                    String.includes("Error: no export filter"),
-                    () =>
-                      new LibreOfficeError({
-                        reason: "BadOutputExtension",
-                        message: result,
-                      }),
-                  ),
-                  Match.when(
-                    String.includes("Permission denied"),
-                    () =>
-                      new LibreOfficeError({
-                        reason: "PermissionDenied",
-                        message: result,
-                      }),
-                  ),
-                  Match.when(
-                    String.includes("Error: "),
-                    () =>
-                      new LibreOfficeError({
-                        reason: "Unknown",
-                        message: result,
-                      }),
-                  ),
-                  Match.orElse(() => Effect.void),
-                );
+                yield* mapOutputMessage(String.trim(result));
 
                 if (exitCode !== 0) {
                   return yield* new LibreOfficeError({

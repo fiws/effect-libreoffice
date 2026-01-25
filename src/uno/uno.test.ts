@@ -7,7 +7,7 @@ import { GenericContainer, Wait } from "testcontainers";
 import { testRunning } from "./uno";
 
 class TempDir extends Effect.Service<TempDir>()(
-  "libre-convert-effect/uno/uno.test/TempDir",
+  "effect-libreoffice/uno/uno.test/TempDir",
   {
     scoped: Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
