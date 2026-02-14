@@ -38,7 +38,7 @@ const outputUno = path.join(sharedDir, "output_uno.pdf");
 // 1. Default Implementation (CLI)
 // Needs: NodeContext (for FileSystem, Path)
 // AND the resulting effect needs CommandExecutor which comes from NodeContext
-const DefaultEnv = LibreOffice.Default.pipe(
+const DefaultEnv = LibreOffice.layerCli.pipe(
   Layer.provideMerge(NodeContext.layer),
 );
 
@@ -49,7 +49,7 @@ const runDefault = Effect.gen(function* () {
 
 // 2. Uno Implementation (Remote)
 // Needs: UnoClient, UnoServer.Remote, NodeContext, NodeHttpClient
-const UnoEnv = LibreOffice.Uno.pipe(
+const UnoEnv = LibreOffice.layerUno.pipe(
   Layer.provide(UnoClient.Default),
   Layer.provide(UnoServer.Remote),
   Layer.provideMerge(NodeHttpClient.layer),

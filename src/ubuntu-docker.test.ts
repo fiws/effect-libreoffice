@@ -32,7 +32,7 @@ const UbuntuContainer = Layer.scoped(
   }),
 );
 
-const TestLive = LibreOffice.Default.pipe(
+const TestLive = LibreOffice.layerCli.pipe(
   Layer.provideMerge(UbuntuContainer),
   Layer.provideMerge(NodeContext.layer),
 );

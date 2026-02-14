@@ -1,22 +1,27 @@
 import { FileSystem, Path } from "@effect/platform";
 import { NodeContext, NodeHttpClient } from "@effect/platform-node";
 import { assert, expect, it } from "@effect/vitest";
-import { Effect, Layer, Predicate } from "effect";
+import { Context, Effect, Layer, Predicate } from "effect";
 import { LibreOffice, UnoServer } from "effect-libreoffice";
 import { GenericContainer, Wait } from "testcontainers";
 import { testRunning } from "./uno";
 
-class TempDir extends Effect.Service<TempDir>()(
-  "effect-libreoffice/uno/uno.test/TempDir",
+class TempDir extends Context.Tag("effect-libreoffice/uno/uno.test/TempDir")<
+  TempDir,
   {
-    scoped: Effect.gen(function* () {
+    readonly dir: string;
+  }
+>() {
+  static readonly Default = Layer.scoped(
+    this,
+    Effect.gen(function* () {
       const fs = yield* FileSystem.FileSystem;
       return {
         dir: yield* fs.makeTempDirectoryScoped(),
       };
     }),
-  },
-) {}
+  );
+}
 
 const UnoServerTest = Layer.scoped(
   UnoServer,
@@ -51,13 +56,13 @@ const UnoServerTest = Layer.scoped(
     const port = container.getMappedPort(2003);
 
     yield* testRunning(`http://localhost:${port}/RPC2`);
-    return UnoServer.make({
+    return {
       url: `http://localhost:${port}/RPC2`,
-    });
+    };
   }),
 );
 
-const UnoLayer = LibreOffice.Uno.pipe(
+const UnoLayer = LibreOffice.layerUno.pipe(
   Layer.provideMerge(UnoServerTest),
   Layer.provideMerge(TempDir.Default),
 );

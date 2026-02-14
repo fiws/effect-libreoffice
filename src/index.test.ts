@@ -4,7 +4,7 @@ import { assert, expect, it } from "@effect/vitest";
 import { Effect, Layer, Predicate } from "effect";
 import { LibreOffice } from "effect-libreoffice";
 
-const TestLive = Layer.provideMerge(LibreOffice.Default, NodeContext.layer);
+const TestLive = Layer.provideMerge(LibreOffice.layerCli, NodeContext.layer);
 
 it.layer(TestLive)("Libreoffice (Default)", (it) => {
   it.scoped(

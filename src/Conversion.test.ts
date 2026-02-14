@@ -4,7 +4,7 @@ import { expect, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import { Conversion, LibreOffice } from "effect-libreoffice";
 
-const TestLive = Layer.provideMerge(LibreOffice.Default, NodeContext.layer);
+const TestLive = Layer.provideMerge(LibreOffice.layerCli, NodeContext.layer);
 
 it.layer(TestLive)("Conversion API", (it) => {
   it.scoped(

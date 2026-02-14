@@ -4,7 +4,16 @@ import {
   HttpClientRequest,
   type HttpClientResponse,
 } from "@effect/platform";
-import { Effect, flow, Layer, Match, Schedule, Schema, String } from "effect";
+import {
+  Context,
+  Effect,
+  flow,
+  Layer,
+  Match,
+  Schedule,
+  Schema,
+  String,
+} from "effect";
 import type { OutputPath } from "../shared";
 import { decodeUnoResponse } from "./uno-response";
 import { parseXML } from "./xml-parser";
@@ -72,10 +81,15 @@ export const ensureRunning = flow(
 /**
  * UnoServer service. The default implementation will try to spawn a new `unoserver` process.
  */
-export class UnoServer extends Effect.Service<UnoServer>()(
-  "effect-libreoffice/index/UnoServer",
+export class UnoServer extends Context.Tag("effect-libreoffice/uno/UnoServer")<
+  UnoServer,
   {
-    scoped: Effect.gen(function* () {
+    readonly url: string;
+  }
+>() {
+  static readonly Default = Layer.scoped(
+    this,
+    Effect.gen(function* () {
       const acquire = Effect.gen(function* () {
         const process = yield* Command.start(Command.make("unoserver"));
 
@@ -102,8 +116,8 @@ export class UnoServer extends Effect.Service<UnoServer>()(
         url: "http://localhost:2003/RPC2",
       };
     }),
-  },
-) {
+  );
+
   /**
    * Creates a {@link UnoServer} that will connect to a remote uno server at the given URL.
    *
@@ -118,9 +132,9 @@ export class UnoServer extends Effect.Service<UnoServer>()(
       UnoServer,
       Effect.gen(function* () {
         yield* ensureRunning(url);
-        return UnoServer.make({
+        return {
           url,
-        });
+        };
       }),
     );
   /**
@@ -235,10 +249,24 @@ const handleResponse = (response: HttpClientResponse.HttpClientResponse) =>
  * UnoClient service. Provides a high-level API for interacting with a Uno server
  * to perform document conversions and comparisons.
  */
-export class UnoClient extends Effect.Service<UnoClient>()(
-  "effect-libreoffice/uno/UnoClient",
+export class UnoClient extends Context.Tag("effect-libreoffice/uno/UnoClient")<
+  UnoClient,
   {
-    scoped: Effect.gen(function* () {
+    readonly client: HttpClient.HttpClient;
+    readonly convert: (
+      input: string,
+      output: OutputPath,
+      format?: string,
+    ) => Effect.Effect<HttpClientResponse.HttpClientResponse, UnoError>;
+    readonly compare: (
+      input: string,
+      output: string,
+    ) => Effect.Effect<HttpClientResponse.HttpClientResponse, UnoError>;
+  }
+>() {
+  static readonly Default = Layer.scoped(
+    this,
+    Effect.gen(function* () {
       const { url } = yield* UnoServer;
 
       const client = (yield* HttpClient.HttpClient).pipe(
@@ -260,9 +288,18 @@ export class UnoClient extends Effect.Service<UnoClient>()(
          * @returns An Effect that performs the conversion and returns the HTTP response on success.
          */
         convert(input: string, output: OutputPath, format?: string) {
-          return client
-            .execute(convertRequest(input, output, format))
-            .pipe(Effect.flatMap(handleResponse));
+          return client.execute(convertRequest(input, output, format)).pipe(
+            Effect.flatMap(handleResponse),
+            Effect.catchAll((e) =>
+              e instanceof UnoError
+                ? Effect.fail(e)
+                : new UnoError({
+                    reason: "Unknown",
+                    message: "Client request failed",
+                    cause: e,
+                  }),
+            ),
+          );
         },
         /**
          * Compares two documents and saves the comparison result to the specified output path.
@@ -272,11 +309,20 @@ export class UnoClient extends Effect.Service<UnoClient>()(
          * @returns An Effect that performs the comparison and returns the HTTP response on success.
          */
         compare(input: string, output: string) {
-          return client
-            .execute(compareRequest(input, output))
-            .pipe(Effect.flatMap(handleResponse));
+          return client.execute(compareRequest(input, output)).pipe(
+            Effect.flatMap(handleResponse),
+            Effect.catchAll((e) =>
+              e instanceof UnoError
+                ? Effect.fail(e)
+                : new UnoError({
+                    reason: "Unknown",
+                    message: "Client request failed",
+                    cause: e,
+                  }),
+            ),
+          );
         },
       };
     }),
-  },
-) {}
+  );
+}

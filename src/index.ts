@@ -1,60 +1,36 @@
 import { Command, CommandExecutor, FileSystem, Path } from "@effect/platform";
-import { Context, Effect, Layer, Match, Stream, String } from "effect";
+import { Context, Effect, Layer, String } from "effect";
 import * as Conversion from "./Conversion";
 import { LibreOfficeError, type OutputPath } from "./shared";
 import { UnoClient, UnoError, UnoServer } from "./uno/uno";
 
 export { UnoServer, UnoClient, Conversion };
+export { LibreOfficeCmd } from "./cli";
 
-const runString = <E, R>(
-  stream: Stream.Stream<Uint8Array, E, R>,
-): Effect.Effect<string, E, R> =>
-  stream.pipe(Stream.decodeText(), Stream.runFold(String.empty, String.concat));
+import { LibreOfficeCmd, mapOutputMessage, runString } from "./cli";
 
 /**
- * LibreOfficeCmd service. Used to specify the command and base arguments for spawning LibreOffice.
- * Defaults to `["soffice", "--headless"]`.
+ * Interface for the LibreOffice service.
  */
-export class LibreOfficeCmd extends Context.Reference<LibreOfficeCmd>()(
-  "effect-libreoffice/index/LibreOfficeCmd",
-  { defaultValue: () => ["soffice", "--headless"] },
-) {}
-
-const mapOutputMessage = Match.type<string>().pipe(
-  Match.when(
-    String.includes("Error: source file could not be loaded"),
-    (message) =>
-      new LibreOfficeError({
-        reason: "InputFileNotFound",
-        message,
-      }),
-  ),
-  Match.when(
-    String.includes("Error: no export filter"),
-    (message) =>
-      new LibreOfficeError({
-        reason: "BadOutputExtension",
-        message,
-      }),
-  ),
-  Match.when(
-    String.includes("Permission denied"),
-    (message) =>
-      new LibreOfficeError({
-        reason: "PermissionDenied",
-        message,
-      }),
-  ),
-  Match.when(
-    String.includes("Error: "),
-    (message) =>
-      new LibreOfficeError({
-        reason: "Unknown",
-        message,
-      }),
-  ),
-  Match.orElse(() => Effect.void),
-);
+export interface LibreOfficeService {
+  /**
+   * Converts a file to a different format.
+   *
+   * ### Example
+   *
+   * ```ts
+   * const program = Effect.gen(function* () {
+   *   const libre = yield* LibreOffice;
+   *   yield* libre.convertLocalFile("/path/to/input.docx", "/path/to/output.pdf");
+   * });
+   * ```
+   */
+  readonly convertLocalFile: (
+    input: string,
+    output: OutputPath,
+    format?: string,
+  ) => Effect.Effect<void, LibreOfficeError>;
+}
 
 /**
  * LibreOffice service. Provides methods for document conversion using LibreOffice.
@@ -69,37 +45,30 @@ const mapOutputMessage = Match.type<string>().pipe(
  * })
  *
  * program.pipe(
- *   Effect.provide(LibreOffice.Default),
+ *   Effect.provide(LibreOffice.layerCli),
  *   Effect.provide(NodeContext.layer),
  *   Effect.runPromise
  * );
  * ```
  */
-export class LibreOffice extends Effect.Service<LibreOffice>()(
+export class LibreOffice extends Context.Tag(
   "effect-libreoffice/index/LibreOffice",
-  {
-    // #region Default
-    scoped: Effect.gen(function* () {
+)<LibreOffice, LibreOfficeService>() {
+  static layerCli = Layer.scoped(
+    this,
+    Effect.gen(function* () {
       const executor = yield* CommandExecutor.CommandExecutor;
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
       const sem = yield* Effect.makeSemaphore(1);
 
-      return {
-        /**
-         * Converts a file to a different format.
-         *
-         * ### Example
-         *
-         * ```ts
-         * const program = Effect.gen(function* () {
-         *   const libre = yield* LibreOffice;
-         *   yield* libre.convertLocalFile("/path/to/input.docx", "/path/to/output.pdf");
-         * });
-         * ```
-         */
-        convertLocalFile: Effect.fn(
-          function* (input: string, output: OutputPath, format?: string) {
+      return LibreOffice.of({
+        convertLocalFile: (
+          input: string,
+          output: OutputPath,
+          format?: string,
+        ) =>
+          Effect.gen(function* () {
             const [cmd, ...args] = yield* LibreOfficeCmd;
 
             const parsedInput = path.parse(input);
@@ -170,32 +139,44 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
                 // (temp directory is cleaned up by finalizer from makeTempDirectoryScoped)
               }),
             );
-          },
-          Effect.provideService(CommandExecutor.CommandExecutor, executor),
-          Effect.scoped,
-        ),
-      };
+          }).pipe(
+            Effect.provideService(CommandExecutor.CommandExecutor, executor),
+            Effect.scoped,
+            Effect.catchAll((e) =>
+              e instanceof LibreOfficeError
+                ? Effect.fail(e)
+                : new LibreOfficeError({
+                    reason: "Unknown",
+                    message: "Conversion failed",
+                    cause: e,
+                  }),
+            ),
+          ),
+      });
     }),
-    // #endregion
-  },
-) {
-  // #region Uno
+  );
+
   /**
    * The Uno layer uses a unoserver to convert files. It is much more
+
    * performant than the cli but requires you to provide a {@link UnoServer}
    * which in turn either requires a running unoserver or the `unoserver`
    * binary to be available in your PATH (eg. installed via pip).
    */
-  static Uno = Layer.scoped(
-    LibreOffice,
+  static layerUno = Layer.scoped(
+    this,
     Effect.gen(function* () {
       const client = yield* UnoClient;
 
-      return LibreOffice.make({
-        convertLocalFile: (input, output, format) =>
+      return LibreOffice.of({
+        convertLocalFile: (
+          input: string,
+          output: OutputPath,
+          format?: string,
+        ) =>
           client.convert(input, output, format).pipe(
             Effect.as(undefined),
-            Effect.mapError((err) =>
+            Effect.catchAll((err) =>
               err instanceof UnoError
                 ? new LibreOfficeError(err)
                 : new LibreOfficeError({
@@ -208,5 +189,4 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
       });
     }).pipe(Effect.provide(UnoClient.Default)),
   );
-  // #endregion
 }

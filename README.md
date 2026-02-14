@@ -10,12 +10,12 @@ A Effect-based wrapper for LibreOffice, providing multiple strategies for docume
 
 This library offers two distinct implementations for interacting with LibreOffice:
 
-1.  **LibreOfficeCmd (Default)**: Uses the `soffice` command-line tool directly.
-2.  **UnoClient (Uno)**: Connects to a running `unoserver` instance.
+1.  **LibreOffice CLI (`LibreOffice.layerCli`)**: Uses the `soffice` command-line tool directly.
+2.  **Uno (`LibreOffice.layerUno`)**: Connects to a running `unoserver` instance.
 
 ### Comparison
 
-| Feature         | LibreOfficeCmd (Default)                 | UnoClient (Uno)                                            |
+| Feature         | CLI (`layerCli`)                         | Uno (`layerUno`)                                           |
 | :-------------- | :--------------------------------------- | :--------------------------------------------------------- |
 | **Method**      | Spawns a new process for each conversion | Connects to a long-running server                          |
 | **Performance** | Slower (~440ms/file)                     | Fast (~60ms/file)                                          |
@@ -34,13 +34,13 @@ import { NodeContext } from "@effect/platform-node";
 import { Effect } from "effect";
 
 const program = Conversion.fromFile("input.docx").pipe(
-  Conversion.toFile("output.pdf", { format: "pdf" })
+  Conversion.toFile("output.pdf", { format: "pdf" }),
 );
 
 program.pipe(
-  Effect.provide(LibreOffice.Default),
+  Effect.provide(LibreOffice.layerCli),
   Effect.provide(NodeContext.layer),
-  Effect.runPromise
+  Effect.runPromise,
 );
 ```
 
@@ -58,7 +58,7 @@ const program = Effect.gen(function* () {
   yield* libre.convertLocalFile("input.docx", "output.pdf");
 });
 
-const Layers = LibreOffice.Default.pipe(Layer.provide(NodeContext.layer));
+const Layers = LibreOffice.layerCli.pipe(Layer.provide(NodeContext.layer));
 
 program.pipe(Effect.provide(Layers), Effect.runPromise);
 ```
@@ -77,10 +77,10 @@ const program = Effect.gen(function* () {
   yield* libre.convertLocalFile("input.docx", "output.pdf");
 });
 
-const Layers = LibreOffice.Uno.pipe(
+const Layers = LibreOffice.layerUno.pipe(
   Layer.provide(UnoServer.Default), // This will start a unoserver
   Layer.provide(NodeContext.layer),
-  Layer.provide(NodeHttpClient.layer)
+  Layer.provide(NodeHttpClient.layer),
 );
 
 program.pipe(Effect.provide(Layers), Effect.runPromise);
@@ -111,9 +111,9 @@ const program = Effect.gen(function* () {
   yield* libre.convertLocalFile("input.docx", "output.pdf");
 });
 
-const UnoLayers = LibreOffice.Uno.pipe(
+const UnoLayers = LibreOffice.layerUno.pipe(
   Layer.provide(NodeHttpClient.layerUndici),
-  Layer.provide(UnoServer.Remote) // Defaults to localhost:2003
+  Layer.provide(UnoServer.Remote), // Defaults to localhost:2003
   // or: Layer.provide(UnoServer.remoteWithURL("http://localhost:1111/custom/RPC2"))
 );
 
