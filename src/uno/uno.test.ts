@@ -29,12 +29,7 @@ const UnoServerTest = Layer.scoped(
     const { dir: tempDir } = yield* TempDir;
     const container = yield* Effect.acquireRelease(
       Effect.tryPromise(async () => {
-        const image = await GenericContainer.fromDockerfile(".").build(
-          "fiws/libreoffice-unoserver:latest",
-          {
-            deleteOnExit: false,
-          },
-        );
+        const image = new GenericContainer("fiws/libreoffice-unoserver:latest");
         return await image
           .withExposedPorts(2003)
           .withUser(
