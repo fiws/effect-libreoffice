@@ -24,16 +24,18 @@ export function parseXML(
 }
 
 if (import.meta.vitest) {
-  const { it, expect } = import.meta.vitest;
+  const { it } = import.meta.vitest;
+  const { assert } = await import("@effect/vitest");
+
   it("should parse xml", () => {
     const xml = `<root><child>text</child></root>`;
     const result = Effect.runSync(parseXML(xml));
-    expect(result).toEqual({ root: { child: "text" } });
+    assert.deepStrictEqual(result, { root: { child: "text" } });
   });
 
   it("should fail on invalid xml", () => {
     const xml = `<root><![CDATA[unclosed`;
     const result = Effect.runSyncExit(parseXML(xml));
-    expect(result._tag).toBe("Failure");
+    assert.strictEqual(result._tag, "Failure");
   });
 }

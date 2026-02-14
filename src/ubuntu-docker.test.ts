@@ -1,6 +1,6 @@
 import { Path } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
-import { assert, expect, it } from "@effect/vitest";
+import { assert, it } from "@effect/vitest";
 import { Effect, Layer, Predicate } from "effect";
 import { GenericContainer } from "testcontainers";
 import { LibreOffice, LibreOfficeCmd } from "./index";
@@ -48,13 +48,13 @@ it.layer(TestLive, { timeout: 120_000 })(
           .convertLocalFile("./fixtures/test-not-found.txt", "test.out.pdf")
           .pipe(Effect.flip);
 
-        expect(result._tag).toBe("LibreOfficeError");
+        assert.strictEqual(result._tag, "LibreOfficeError");
 
         assert(
           Predicate.isTagged(result, "LibreOfficeError"),
           "result is not LibreOfficeError",
         );
-        expect(result.reason).toBe("InputFileNotFound");
+        assert.strictEqual(result.reason, "InputFileNotFound");
       }),
     );
   },

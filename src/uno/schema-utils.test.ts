@@ -1,5 +1,6 @@
+import { assert } from "@effect/vitest";
 import { Schema } from "effect";
-import { describe, expect, it } from "vitest";
+import { describe, it } from "vitest";
 import { StructFromMembers } from "./schema-utils.js";
 
 describe("StructFromMembers", () => {
@@ -16,7 +17,7 @@ describe("StructFromMembers", () => {
     ];
 
     const result = Schema.decodeSync(Target)(input);
-    expect(result).toEqual({ count: 42, message: "hello" });
+    assert.deepStrictEqual(result, { count: 42, message: "hello" });
   });
 
   it("encodes struct to members", () => {
@@ -31,7 +32,7 @@ describe("StructFromMembers", () => {
     // Sort to ensure order independence in test, though map preserves order
     const sorted = [...result].sort((a, b) => a.name.localeCompare(b.name));
 
-    expect(sorted).toEqual([
+    assert.deepStrictEqual(sorted, [
       { name: "count", value: { int: 42 } },
       { name: "message", value: { string: "hello" } },
     ]);
@@ -44,7 +45,7 @@ describe("StructFromMembers", () => {
 
     const input = [{ name: "count", value: { string: "not a number" } }];
 
-    expect(() => Schema.decodeSync(Target)(input)).toThrow();
+    assert.throws(() => Schema.decodeSync(Target)(input));
   });
 
   it("fails decode on missing required fields", () => {
@@ -53,6 +54,6 @@ describe("StructFromMembers", () => {
     });
 
     const input: unknown[] = [];
-    expect(() => Schema.decodeUnknownSync(Target)(input)).toThrow();
+    assert.throws(() => Schema.decodeUnknownSync(Target)(input));
   });
 });

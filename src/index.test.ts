@@ -1,6 +1,6 @@
 import { FileSystem, Path } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
-import { assert, expect, it } from "@effect/vitest";
+import { assert, it } from "@effect/vitest";
 import { Effect, Layer, Predicate } from "effect";
 import { LibreOffice } from "effect-libreoffice";
 
@@ -24,7 +24,7 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
       const targetContent = yield* fs.readFile(targetFile);
 
       const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      expect(header).toBe("%PDF");
+      assert.strictEqual(header, "%PDF");
     }),
   );
 
@@ -36,7 +36,7 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
         .convertLocalFile("./fixtures/test-not-found.txt", "test.out.pdf")
         .pipe(Effect.flip);
 
-      expect(result._tag).toBe("LibreOfficeError");
+      assert.strictEqual(result._tag, "LibreOfficeError");
 
       // assertion for type narrowing
       assert(
@@ -77,7 +77,7 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
       const targetContent = yield* fs.readFile(targetFile);
 
       const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      expect(header).toBe("%PDF");
+      assert.strictEqual(header, "%PDF");
     }),
   );
 
@@ -101,7 +101,7 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
         Predicate.isTagged(result, "LibreOfficeError"),
         "result is not LibreOfficeError",
       );
-      expect(result.reason).toBe("BadOutputExtension");
+      assert.strictEqual(result.reason, "BadOutputExtension");
     }),
   );
 
@@ -125,7 +125,7 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
         Predicate.isTagged(result, "LibreOfficeError"),
         "result is not LibreOfficeError",
       );
-      expect(result.reason).toBe("BadOutputExtension");
+      assert.strictEqual(result.reason, "BadOutputExtension");
     }),
   );
 });

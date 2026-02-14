@@ -1,6 +1,6 @@
 import { FileSystem, Path } from "@effect/platform";
 import { NodeContext, NodeHttpClient } from "@effect/platform-node";
-import { assert, expect, it } from "@effect/vitest";
+import { assert, it } from "@effect/vitest";
 import { Context, Effect, Layer, Predicate } from "effect";
 import { LibreOffice, UnoServer } from "effect-libreoffice";
 import { GenericContainer, Wait } from "testcontainers";
@@ -87,7 +87,7 @@ it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
       const targetContent = yield* fs.readFile(targetFile);
 
       const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      expect(header).toBe("%PDF");
+      assert.strictEqual(header, "%PDF");
     }),
   );
 
@@ -102,7 +102,7 @@ it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
         Predicate.isTagged(result, "LibreOfficeError"),
         "result is not LibreOfficeError",
       );
-      expect(result.reason).toBe("InputFileNotFound");
+      assert.strictEqual(result.reason, "InputFileNotFound");
     }),
   );
 
@@ -132,7 +132,7 @@ it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
       const targetContent = yield* fs.readFile(targetFile);
 
       const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      expect(header).toBe("%PDF");
+      assert.strictEqual(header, "%PDF");
     }),
   );
 
@@ -158,7 +158,7 @@ it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
         Predicate.isTagged(result, "LibreOfficeError"),
         "result is not LibreOfficeError",
       );
-      expect(result.reason).toBe("BadOutputExtension");
+      assert.strictEqual(result.reason, "BadOutputExtension");
     }),
   );
 
@@ -185,7 +185,7 @@ it.layer(TestLive, { timeout: 120_000 })("Libreoffice (Uno)", (it) => {
         Predicate.isTagged(result, "LibreOfficeError"),
         "result is not LibreOfficeError",
       );
-      expect(result.reason).toBe("BadOutputExtension");
+      assert.strictEqual(result.reason, "BadOutputExtension");
     }),
   );
 });

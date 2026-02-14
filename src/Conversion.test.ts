@@ -1,6 +1,6 @@
 import { FileSystem, Path } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
-import { expect, it } from "@effect/vitest";
+import { assert, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
 import { Conversion, LibreOffice } from "effect-libreoffice";
 
@@ -28,7 +28,7 @@ it.layer(TestLive)("Conversion API", (it) => {
       const targetContent = yield* fs.readFile(targetFile);
 
       const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      expect(header).toBe("%PDF");
+      assert.strictEqual(header, "%PDF");
     }),
   );
 
@@ -52,7 +52,7 @@ it.layer(TestLive)("Conversion API", (it) => {
       const targetContent = yield* fs.readFile(targetFile);
 
       const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      expect(header).toBe("%PDF");
+      assert.strictEqual(header, "%PDF");
     }),
   );
 
@@ -76,7 +76,7 @@ it.layer(TestLive)("Conversion API", (it) => {
       const targetContent = yield* fs.readFile(targetFile);
 
       const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      expect(header).toBe("%PDF");
+      assert.strictEqual(header, "%PDF");
     }),
   );
 
@@ -99,7 +99,7 @@ it.layer(TestLive)("Conversion API", (it) => {
 
       const targetContent = yield* fs.readFile(targetFile);
       const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      expect(header).toBe("%PDF");
+      assert.strictEqual(header, "%PDF");
     }),
   );
 });
