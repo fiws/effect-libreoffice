@@ -8,5 +8,6 @@ export default defineConfig({
     alias: {
       "effect-libreoffice": "src/index.ts",
     },
+    fileParallelism: false,
   },
 });

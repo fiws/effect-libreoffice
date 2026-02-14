@@ -74,7 +74,7 @@ export const fromBuffer = (
  * @since 1.0.0
  */
 export const toFile =
-  (output: OutputPath, _options?: { readonly format?: string }) =>
+  (output: OutputPath, options?: { readonly format?: string }) =>
   (self: Conversion) =>
     Effect.gen(function* () {
       const libre = yield* LibreOffice;
@@ -92,6 +92,5 @@ export const toFile =
         yield* fs.writeFile(inputPath, self.input.data);
       }
 
-      // TODO: Use options.format if provided, currently convertLocalFile relies on extension
-      yield* libre.convertLocalFile(inputPath, output);
+      yield* libre.convertLocalFile(inputPath, output, options?.format);
     }).pipe(Effect.scoped);

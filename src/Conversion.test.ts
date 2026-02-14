@@ -79,4 +79,27 @@ it.layer(TestLive)("Conversion API", (it) => {
       expect(header).toBe("%PDF");
     }),
   );
+
+  it.scoped(
+    "should convert with explicit format option",
+    Effect.fn(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+
+      const tempDir = yield* fs.makeTempDirectoryScoped();
+      const targetFile = path.join(tempDir, "explicit-format-test"); // No extension
+
+      const buffer = new TextEncoder().encode("Explicit Format PDF");
+
+      const conversion = Conversion.fromBuffer(buffer).pipe(
+        Conversion.toFile(targetFile, { format: "pdf" }),
+      );
+
+      yield* conversion;
+
+      const targetContent = yield* fs.readFile(targetFile);
+      const header = new TextDecoder().decode(targetContent.slice(0, 4));
+      expect(header).toBe("%PDF");
+    }),
+  );
 });

@@ -134,15 +134,18 @@ export class UnoServer extends Effect.Service<UnoServer>()(
  *
  * @param input - The absolute path to the input document.
  * @param output - The absolute path where the converted document should be saved.
+ * @param format - The output format (e.g. "pdf"). If null/undefined, auto-detected from output extension.
  * @returns A HttpClientRequest configured for the conversion.
  */
-const convertRequest = (input: string, output: string) => {
+const convertRequest = (input: string, output: string, format?: string) => {
+  const formatValue = format ? `<string>${format}</string>` : "<nil/>";
+
   const body = `<?xml version="1.0"?>
 <methodCall>
   <methodName>convert</methodName>
   <params>
     <param><value><string>${input}</string></value></param>
-    <param><value><nil/></value></param>
+    <param><value>${formatValue}</value></param>
     <param><value><string>${output}</string></value></param>
   </params>
 </methodCall>
@@ -253,11 +256,12 @@ export class UnoClient extends Effect.Service<UnoClient>()(
          *
          * @param input - The absolute path to the input document.
          * @param output - The absolute path where the converted document should be saved.
+         * @param format - The output format (e.g. "pdf").
          * @returns An Effect that performs the conversion and returns the HTTP response on success.
          */
-        convert(input: string, output: OutputPath) {
+        convert(input: string, output: OutputPath, format?: string) {
           return client
-            .execute(convertRequest(input, output))
+            .execute(convertRequest(input, output, format))
             .pipe(Effect.flatMap(handleResponse));
         },
         /**

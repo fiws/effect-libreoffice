@@ -1,5 +1,5 @@
 import { Command, CommandExecutor, FileSystem, Path } from "@effect/platform";
-import { Context, Effect, flow, Layer, Match, Stream, String } from "effect";
+import { Context, Effect, Layer, Match, Stream, String } from "effect";
 import * as Conversion from "./Conversion";
 import { LibreOfficeError, type OutputPath } from "./shared";
 import { UnoClient, UnoError, UnoServer } from "./uno/uno";
@@ -99,11 +99,13 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
          * ```
          */
         convertLocalFile: Effect.fn(
-          function* (input: string, output: OutputPath) {
+          function* (input: string, output: OutputPath, format?: string) {
             const [cmd, ...args] = yield* LibreOfficeCmd;
 
             const parsedInput = path.parse(input);
             const parsedOutput = path.parse(output);
+
+            const outputExt = format ? `.${format}` : parsedOutput.ext;
 
             // to preserve compatiblity with unoserver we have to check if the output is a directory
             if (
@@ -132,7 +134,7 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
                   cmd,
                   ...args,
                   "--convert-to",
-                  parsedOutput.ext.slice(1),
+                  outputExt.slice(1),
                   "--outdir",
                   tempDir,
                   input,
@@ -159,7 +161,7 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
                 // it will be the input file name with the extension changed to the output format
                 const libreOutputPath = path.join(
                   tempDir,
-                  String.concat(parsedInput.name, parsedOutput.ext),
+                  String.concat(parsedInput.name, outputExt),
                 );
 
                 // so we rename the file to the expected output path
@@ -190,19 +192,19 @@ export class LibreOffice extends Effect.Service<LibreOffice>()(
       const client = yield* UnoClient;
 
       return LibreOffice.make({
-        convertLocalFile: flow(
-          client.convert,
-          Effect.as(undefined),
-          Effect.mapError((err) =>
-            err instanceof UnoError
-              ? new LibreOfficeError(err)
-              : new LibreOfficeError({
-                  reason: "Unknown",
-                  message: `Failed to convert file: ${err}`,
-                  cause: err,
-                }),
+        convertLocalFile: (input, output, format) =>
+          client.convert(input, output, format).pipe(
+            Effect.as(undefined),
+            Effect.mapError((err) =>
+              err instanceof UnoError
+                ? new LibreOfficeError(err)
+                : new LibreOfficeError({
+                    reason: "Unknown",
+                    message: `Failed to convert file: ${err}`,
+                    cause: err,
+                  }),
+            ),
           ),
-        ),
       });
     }).pipe(Effect.provide(UnoClient.Default)),
   );
