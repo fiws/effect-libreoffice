@@ -4,19 +4,19 @@ import { LibreOffice } from "./index";
 import type { OutputPath } from "./shared";
 
 /**
- * @since 1.0.0
+ * @since 2.0.0
  */
 export const TypeId: unique symbol = Symbol.for(
   "effect-libreoffice/Conversion",
 );
 
 /**
- * @since 1.0.0
+ * @since 2.0.0
  */
 export type TypeId = typeof TypeId;
 
 /**
- * @since 1.0.0
+ * @since 2.0.0
  */
 export type Input =
   | { readonly _tag: "File"; readonly path: string }
@@ -27,7 +27,7 @@ export type Input =
     };
 
 /**
- * @since 1.0.0
+ * @since 2.0.0
  */
 export interface Conversion extends Pipeable.Pipeable {
   readonly [TypeId]: TypeId;
@@ -43,7 +43,10 @@ const proto = {
 };
 
 /**
- * @since 1.0.0
+ * Creates a conversion pipeline from a file path.
+ *
+ * @param path - The path to the input file.
+ * @since 2.0.0
  */
 export const fromFile = (path: string): Conversion => {
   const conversion = Object.create(proto);
@@ -59,7 +62,7 @@ export const fromFile = (path: string): Conversion => {
  * @param options.format - The file extension/format hint (e.g., "docx", "txt").
  *                         While LibreOffice can often detect the format from content,
  *                         providing this is recommended for binary formats.
- * @since 1.0.0
+ * @since 2.0.0
  */
 export const fromBuffer = (
   data: Uint8Array,
@@ -71,7 +74,7 @@ export const fromBuffer = (
 };
 
 /**
- * @since 1.0.0
+ * @since 2.0.0
  */
 export const toFile =
   (output: OutputPath, options?: { readonly format?: string }) =>
