@@ -38,22 +38,22 @@
   ],
   "packageManager": "pnpm@10.22.0",
   "dependencies": {
-    "fast-xml-parser": "^5.3.3"
+    "fast-xml-parser": "^5.3.6"
   },
   "peerDependencies": {
     "@effect/platform": "^0.93.3",
     "effect": "^3.19.6"
   },
   "devDependencies": {
-    "@biomejs/biome": "2.3.12",
-    "@effect/language-service": "^0.72.0",
-    "@effect/platform": "^0.94.2",
+    "@biomejs/biome": "2.3.15",
+    "@effect/language-service": "^0.73.1",
+    "@effect/platform": "^0.94.5",
     "@effect/platform-node": "^0.104.1",
     "@effect/vitest": "^0.27.0",
-    "effect": "^3.19.15",
+    "effect": "^3.19.17",
     "testcontainers": "^11.11.0",
     "tinybench": "^6.0.0",
-    "tsdown": "^0.20.1",
+    "tsdown": "^0.20.3",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
