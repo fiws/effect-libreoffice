@@ -24,6 +24,26 @@ This library offers two distinct implementations for interacting with LibreOffic
 
 ## Usage
 
+### Functional API (Pipeable)
+
+For a more functional approach, you can use the `Conversion` module.
+
+```typescript
+import { Conversion, LibreOffice } from "effect-libreoffice";
+import { NodeContext } from "@effect/platform-node";
+import { Effect } from "effect";
+
+const program = Conversion.fromFile("input.docx").pipe(
+  Conversion.toFile("output.pdf", { format: "pdf" })
+);
+
+program.pipe(
+  Effect.provide(LibreOffice.Default),
+  Effect.provide(NodeContext.layer),
+  Effect.runPromise
+);
+```
+
 ### Default Implementation (CLI)
 
 Best for quick scripts or when you can't run a unoserver.

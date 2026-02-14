@@ -43,7 +43,12 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
         Predicate.isTagged(result, "LibreOfficeError"),
         "result is not LibreOfficeError",
       );
-      expect(result.reason).toBe("InputFileNotFound");
+
+      assert.equal(
+        result.reason,
+        "InputFileNotFound",
+        `Reason is not InputFileNotFound; ${result.cause}`,
+      );
     }),
   );
 

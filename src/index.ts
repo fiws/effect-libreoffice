@@ -1,9 +1,10 @@
 import { Command, CommandExecutor, FileSystem, Path } from "@effect/platform";
 import { Context, Effect, flow, Layer, Match, Stream, String } from "effect";
+import * as Conversion from "./Conversion";
 import { LibreOfficeError, type OutputPath } from "./shared";
 import { UnoClient, UnoError, UnoServer } from "./uno/uno";
 
-export { UnoServer, UnoClient };
+export { UnoServer, UnoClient, Conversion };
 
 const runString = <E, R>(
   stream: Stream.Stream<Uint8Array, E, R>,
