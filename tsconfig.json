@@ -15,6 +15,7 @@
     "verbatimModuleSyntax": true,
     "skipLibCheck": true,
     "types": ["vitest/importMeta"],
+    "allowImportingTsExtensions": true,
     "paths": {
       "effect-libreoffice": ["./src/index.ts"]
     },

@@ -27,7 +27,8 @@
     "prepublishOnly": "pnpm build",
     "test": "vitest run",
     "bench": "vitest bench",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "dev:microservice": "tsx --watch src/microservice/server.ts"
   },
   "keywords": [
     "effect",
