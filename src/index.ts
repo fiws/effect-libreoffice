@@ -1,9 +1,15 @@
 import { Command, CommandExecutor, FileSystem, Path } from "@effect/platform";
 import { Context, Effect, Layer, String } from "effect";
-import { LibreOfficeError, type OutputPath } from "./shared";
+import {
+  type KnownSupportedOutputFormat,
+  LibreOfficeError,
+  type OutputPath,
+  type Reason,
+} from "./shared";
 import { UnoClient, UnoError, UnoServer } from "./uno/uno";
 
-export { UnoServer, UnoClient };
+export { LibreOfficeError, UnoServer, UnoClient, UnoError };
+export type { OutputPath, KnownSupportedOutputFormat, Reason };
 
 export * as Conversion from "./Conversion";
 export { LibreOfficeCmd } from "./cli";

@@ -21,7 +21,7 @@ export type OutputPath =
   | `${string}.${KnownSupportedOutputFormat}`
   | (string & {});
 
-type Reason =
+export type Reason =
   | "InputFileNotFound"
   | "StartFailed"
   | "Unknown"
