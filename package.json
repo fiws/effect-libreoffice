@@ -26,6 +26,7 @@
     "build": "tsdown",
     "prepublishOnly": "pnpm build",
     "test": "vitest run",
+    "bench": "vitest bench",
     "type-check": "tsc --noEmit"
   },
   "keywords": [
