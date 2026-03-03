@@ -196,4 +196,84 @@ export class LibreOffice extends Context.Tag(
       });
     }).pipe(Effect.provide(UnoClient.Default)),
   );
+
+  /**
+   * The WASM layer uses `@matbee/libreoffice-converter` to convert files directly
+   * in Node.js via an embedded WebAssembly build of LibreOffice. It is loaded
+   * dynamically as it depends on an optional peer dependency.
+   */
+  static layerWasm = Layer.scoped(
+    this,
+    Effect.gen(function* () {
+      const fs = yield* FileSystem.FileSystem;
+      const path = yield* Path.Path;
+
+      // Dynamically import the wasm implementation because the underlying
+      // @matbee/libreoffice-converter is an optional dependency
+      const { LibreOfficeWasm, layer } = yield* Effect.tryPromise({
+        try: () => import("./wasm"),
+        catch: (e) =>
+          new LibreOfficeError({
+            reason: "Unknown",
+            message:
+              "Failed to load WASM converter. Make sure @matbee/libreoffice-converter is installed.",
+            cause: e,
+          }),
+      });
+
+      const wasmContext = yield* Layer.build(layer);
+      const wasm = Context.get(wasmContext, LibreOfficeWasm);
+
+      return LibreOffice.of({
+        convertLocalFile: (
+          input: string,
+          output: OutputPath,
+          format?: string,
+        ) =>
+          Effect.gen(function* () {
+            const parsedInput = path.parse(input);
+            const parsedOutput = path.parse(output);
+
+            const outputExt = format || parsedOutput.ext.slice(1);
+            const inputExt = parsedInput.ext.slice(1);
+
+            const inputData = yield* fs.readFile(input);
+
+            const result = yield* wasm
+              .convert(
+                inputData,
+                {
+                  inputFormat:
+                    inputExt as import("@matbee/libreoffice-converter/types").InputFormat,
+                  outputFormat:
+                    outputExt as import("@matbee/libreoffice-converter/types").OutputFormat,
+                },
+                parsedInput.base,
+              )
+              .pipe(
+                Effect.catchAll(
+                  (err) =>
+                    new LibreOfficeError({
+                      reason: "Unknown",
+                      message: `WASM conversion failed: ${err.message}`,
+                      cause: err,
+                    }),
+                ),
+              );
+
+            yield* fs.writeFile(output, result.data);
+          }).pipe(
+            Effect.catchAll((e) =>
+              e instanceof LibreOfficeError
+                ? Effect.fail(e)
+                : new LibreOfficeError({
+                    reason: "Unknown",
+                    message: "Conversion failed",
+                    cause: e,
+                  }),
+            ),
+          ),
+      });
+    }),
+  );
 }

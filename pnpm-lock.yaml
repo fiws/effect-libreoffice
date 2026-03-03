@@ -27,6 +27,9 @@ importers:
       '@effect/vitest':
         specifier: ^0.27.0
         version: 0.27.0(effect@3.19.19)(vitest@4.0.18(@types/node@25.3.2)(tsx@4.21.0)(yaml@2.8.2))
+      '@matbee/libreoffice-converter':
+        specifier: ^2.5.0
+        version: 2.5.0
       effect:
         specifier: ^3.19.19
         version: 3.19.19
@@ -51,6 +54,9 @@ importers:
       vitest:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.3.2)(tsx@4.21.0)(yaml@2.8.2)
+      zetajs:
+        specifier: ^1.2.0
+        version: 1.2.0
 
 packages:
 
@@ -411,6 +417,15 @@ packages:
 
   '@kwsites/file-exists@1.1.1':
     resolution: {integrity: sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==}
+
+  '@matbee/libreoffice-converter@2.5.0':
+    resolution: {integrity: sha512-uOJhx6GL3xbiQp5KBAUU7PcdXvj2/aTBXEtnFQQ5QI5jh8vReodFoBTToxRDaqhLxz4YjKTY22tc15IAa7qHJA==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      sharp: '>=0.32.0'
+    peerDependenciesMeta:
+      sharp:
+        optional: true
 
   '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.3':
     resolution: {integrity: sha512-QZHtlVgbAdy2zAqNA9Gu1UpIuI8Xvsd1v8ic6B2pZmeFnFcMWiPLfWXh7TVw4eGEZ/C9TH281KwhVoeQUKbyjw==}
@@ -1865,9 +1880,15 @@ packages:
     resolution: {integrity: sha512-7dSzzRQ++CKnNI/krKnYRV7JKKPUXMEh61soaHKg9mrWEhzFWhFnxPxGl+69cD1Ou63C13NUPCnmIcrvqCuM6w==}
     engines: {node: '>=12'}
 
+  zetajs@1.2.0:
+    resolution: {integrity: sha512-lAY5Q7qvvGYlmsMyuAByL/re9uIbDmJhHLXvF2FNhOdnv8V1/jUTS5EwIB6dAohFtzrd9HhP//5eoAvNGc9hPA==}
+
   zip-stream@6.0.1:
     resolution: {integrity: sha512-zK7YHHz4ZXpW89AHXUPbQVGKI7uvkd3hzusTdotCg1UxyaVtg0zFJSTfW/Dq5f7OBBVnq6cZIaC8Ti4hb6dtCA==}
     engines: {node: '>= 14'}
+
+  zod@4.3.6:
+    resolution: {integrity: sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg==}
 
 snapshots:
 
@@ -2159,6 +2180,10 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
+
+  '@matbee/libreoffice-converter@2.5.0':
+    dependencies:
+      zod: 4.3.6
 
   '@msgpackr-extract/msgpackr-extract-darwin-arm64@3.0.3':
     optional: true
@@ -3527,8 +3552,12 @@ snapshots:
       y18n: 5.0.8
       yargs-parser: 21.1.1
 
+  zetajs@1.2.0: {}
+
   zip-stream@6.0.1:
     dependencies:
       archiver-utils: 5.0.2
       compress-commons: 6.0.2
       readable-stream: 4.7.0
+
+  zod@4.3.6: {}
