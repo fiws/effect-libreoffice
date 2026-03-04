@@ -19,7 +19,7 @@ export const ConvertRoute = HttpApiBuilder.group(
     handlers
       .handle(
         "convert",
-        Effect.fn("ConvertRoute")(function* (req) {
+        Effect.fn("ConvertRoute")(function*(req) {
           const fs = yield* FileSystem.FileSystem;
           const context = yield* Effect.context<
             | FileSystem.FileSystem
@@ -42,7 +42,7 @@ export const ConvertRoute = HttpApiBuilder.group(
       )
       .handle(
         "convertUrl",
-        Effect.fn("ConvertUrlRoute")(function* (req) {
+        Effect.fn("ConvertUrlRoute")(function*(req) {
           const context = yield* Effect.context<
             | FileSystem.FileSystem
             | Path.Path
@@ -56,13 +56,11 @@ export const ConvertRoute = HttpApiBuilder.group(
                 format: req.payload.format,
               }),
               Effect.provide(context),
-              Effect.catchAll((error) =>
-                Effect.fail(
-                  new LibreOffice.LibreOfficeError({
-                    code: "UNKNOWN",
-                    message: String(error),
-                  }),
-                ),
+              Effect.mapError((error) =>
+                new LibreOffice.LibreOfficeError({
+                  code: "UNKNOWN",
+                  message: String(error),
+                }),
               ),
             );
             return { status: "ok" as const };
