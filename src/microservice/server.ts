@@ -5,6 +5,7 @@ import {
   NodeContext,
   NodeHttpServer,
   NodeRuntime,
+  NodeHttpClient,
 } from "@effect/platform-node";
 import { Config, Effect, Layer, Logger } from "effect";
 import { LibreOffice } from "effect-libreoffice";
@@ -27,6 +28,7 @@ HttpLayerRouter.serve(AllRoutes).pipe(
   Layer.provide(ServerLive),
   Layer.provide(LibreOffice.layer),
   Layer.provide(NodeContext.layer),
+  Layer.provide(NodeHttpClient.layerUndici),
   Layer.launch,
   process.env.NODE_ENV !== "production"
     ? Effect.provide(Logger.pretty)

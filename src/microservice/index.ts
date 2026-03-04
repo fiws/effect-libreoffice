@@ -56,13 +56,12 @@ export const ConvertRoute = HttpApiBuilder.group(
                 format: req.payload.format,
               }),
               Effect.provide(context),
-              Effect.catchAll((error) =>
-                Effect.fail(
+              Effect.mapError(
+                (error) =>
                   new LibreOffice.LibreOfficeError({
                     code: "UNKNOWN",
                     message: String(error),
                   }),
-                ),
               ),
             );
             return { status: "ok" as const };
