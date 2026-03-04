@@ -1,131 +1,66 @@
-import { FileSystem, Path } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import { assert, it } from "@effect/vitest";
 import { Effect, Layer, Predicate } from "effect";
 import { LibreOffice } from "effect-libreoffice";
 
-const TestLive = Layer.provideMerge(LibreOffice.layerCli, NodeContext.layer);
+const TestLive = Layer.mergeAll(LibreOffice.layer, NodeContext.layer);
 
 it.layer(TestLive)("Libreoffice (Default)", (it) => {
-  it.scoped(
-    "should convert a file",
-    Effect.fn(function* () {
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const libre = yield* LibreOffice;
-
-      const tempDir = yield* fs.makeTempDirectory();
-      const sourceFile = path.join(tempDir, "test.txt");
-      const targetFile = path.join(tempDir, "test.out.pdf");
-
-      yield* fs.writeFileString(sourceFile, "Hello PDF");
-      yield* libre.convertLocalFile(sourceFile, targetFile);
-
-      const targetContent = yield* fs.readFile(targetFile);
-
-      const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      assert.strictEqual(header, "%PDF");
-    }),
-  );
-
   it.effect(
-    "should fails with source file not found",
+    "should convert a document",
     Effect.fn(function* () {
-      const libre = yield* LibreOffice;
-      const result = yield* libre
-        .convertLocalFile("./fixtures/test-not-found.txt", "test.out.pdf")
-        .pipe(Effect.flip);
+      const libre = yield* LibreOffice.LibreOffice;
+      const inputData = new TextEncoder().encode("Hello PDF");
+      const result = yield* libre.convert(inputData, {
+        outputFormat: "pdf",
+        inputFormat: "txt",
+      });
 
-      assert.strictEqual(result._tag, "LibreOfficeError");
-
-      // assertion for type narrowing
-      assert(
-        Predicate.isTagged(result, "LibreOfficeError"),
-        "result is not LibreOfficeError",
-      );
-
-      assert.equal(
-        result.reason,
-        "InputFileNotFound",
-        `Reason is not InputFileNotFound; ${result.cause}`,
-      );
+      const header = new TextDecoder().decode(result.data.slice(0, 4));
+      assert.strictEqual(header, "%PDF");
     }),
   );
 
   it.effect(
     "Should work with 2 conversions in parallel",
     Effect.fn(function* () {
-      const libre = yield* LibreOffice;
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
+      const libre = yield* LibreOffice.LibreOffice;
+      const inputData = new TextEncoder().encode("Hello PDF");
 
-      const tempDir = yield* fs.makeTempDirectory();
-      const sourceFile = path.join(tempDir, "test.txt");
-      const targetFile = path.join(tempDir, "test.out.pdf");
-
-      yield* fs.writeFileString(sourceFile, "Hello PDF");
-
-      // will internaly use a semaphore to limit parallel conversions to 1
-      yield* Effect.all(
+      const [res1, res2] = yield* Effect.all(
         [
-          libre.convertLocalFile(sourceFile, targetFile),
-          libre.convertLocalFile(sourceFile, targetFile),
+          libre.convert(inputData, { outputFormat: "pdf", inputFormat: "txt" }),
+          libre.convert(inputData, { outputFormat: "pdf", inputFormat: "txt" }),
         ],
         { concurrency: "unbounded" },
       );
 
-      const targetContent = yield* fs.readFile(targetFile);
-
-      const header = new TextDecoder().decode(targetContent.slice(0, 4));
-      assert.strictEqual(header, "%PDF");
+      const header1 = new TextDecoder().decode(res1.data.slice(0, 4));
+      const header2 = new TextDecoder().decode(res2.data.slice(0, 4));
+      assert.strictEqual(header1, "%PDF");
+      assert.strictEqual(header2, "%PDF");
     }),
   );
 
   it.effect(
     "should fail with invalid output extension",
     Effect.fn(function* () {
-      const libre = yield* LibreOffice;
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const tempDir = yield* fs.makeTempDirectory();
-      const sourceFile = path.join(tempDir, "test.txt");
-      const targetFile = path.join(tempDir, "test.invalidext");
-
-      yield* fs.writeFileString(sourceFile, "Hello PDF");
+      const libre = yield* LibreOffice.LibreOffice;
+      const inputData = new TextEncoder().encode("Hello PDF");
 
       const result = yield* libre
-        .convertLocalFile(sourceFile, targetFile)
+        .convert(inputData, {
+          // @ts-expect-error invalid format test
+          outputFormat: "invalidext",
+          inputFormat: "txt",
+        })
         .pipe(Effect.flip);
 
       assert(
         Predicate.isTagged(result, "LibreOfficeError"),
         "result is not LibreOfficeError",
       );
-      assert.strictEqual(result.reason, "BadOutputExtension");
-    }),
-  );
-
-  it.effect(
-    "should fail with output as directory",
-    Effect.fn(function* () {
-      const libre = yield* LibreOffice;
-      const fs = yield* FileSystem.FileSystem;
-      const path = yield* Path.Path;
-      const tempDir = yield* fs.makeTempDirectory();
-      const sourceFile = path.join(tempDir, "test.txt");
-      const targetFile = tempDir;
-
-      yield* fs.writeFileString(sourceFile, "Hello PDF");
-
-      const result = yield* libre
-        .convertLocalFile(sourceFile, targetFile)
-        .pipe(Effect.flip);
-
-      assert(
-        Predicate.isTagged(result, "LibreOfficeError"),
-        "result is not LibreOfficeError",
-      );
-      assert.strictEqual(result.reason, "BadOutputExtension");
+      assert.strictEqual(result.code, "CONVERSION_FAILED");
     }),
   );
 });

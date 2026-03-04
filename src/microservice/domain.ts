@@ -8,15 +8,7 @@ import {
 } from "@effect/platform";
 import { Schema } from "effect";
 import { constant } from "effect/Function";
-
-// #MARK: Domain Errors
-export class ConversionError extends Schema.TaggedError<ConversionError>()(
-  "ConversionError",
-  {
-    message: Schema.String,
-    cause: Schema.optional(Schema.Unknown),
-  },
-) {}
+import { LibreOfficeError } from "../libreoffice";
 
 // #MARK: Domain Schemas
 export const TargetFormat = Schema.Literal(
@@ -30,6 +22,14 @@ export const TargetFormat = Schema.Literal(
   identifier: "TargetFormat",
   description: "The target format to convert the file to.",
   examples: ["pdf"],
+});
+
+export const ConvertUrlPayload = Schema.Struct({
+  inputUrl: Schema.String.pipe(Schema.nonEmptyString()),
+  outputUrl: Schema.optional(Schema.String.pipe(Schema.nonEmptyString())),
+  format: Schema.optionalWith(TargetFormat, {
+    default: constant("pdf"),
+  }),
 });
 
 // #MARK: API Groups
@@ -59,11 +59,31 @@ export const ConversionApi = HttpApiGroup.make("conversion")
           description: "A stream of the converted file.",
         }),
       )
-      .addError(ConversionError)
+      .addError(LibreOfficeError)
       .annotate(
         OpenApi.Description,
         "Convert a local file to another format using LibreOffice.",
       ),
+  )
+  .add(
+    HttpApiEndpoint.post("convertUrl", "/url")
+      .setPayload(ConvertUrlPayload)
+      .addSuccess(
+        Schema.Union(
+          Schema.Struct({ status: Schema.Literal("ok") }),
+          Schema.Uint8ArrayFromSelf.pipe(
+            HttpApiSchema.withEncoding({
+              kind: "Uint8Array",
+              contentType: "application/octet-stream",
+            }),
+          ),
+        ).annotations({
+          description:
+            "A stream of the converted file if no outputUrl provided, or { status: 'ok' } if outputUrl was provided.",
+        }),
+      )
+      .addError(LibreOfficeError)
+      .annotate(OpenApi.Description, "Convert a document from a URL."),
   )
   .prefix("/conversion");
 

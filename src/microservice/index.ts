@@ -2,42 +2,79 @@ import {
   FileSystem,
   HttpApiBuilder,
   HttpApiScalar,
+  type HttpClient,
   HttpLayerRouter,
   HttpServerResponse,
   type Path,
 } from "@effect/platform";
 import { Effect, Layer, Stream } from "effect";
-import { Conversion, type LibreOffice } from "effect-libreoffice";
-import { ConversionError, LibreOfficeApi } from "./domain.ts";
-
-export * from "./domain.ts";
+import { Conversion, LibreOffice } from "effect-libreoffice";
+import { LibreOfficeApi } from "./domain.ts";
 
 // LibreOfficeApi route implementation
 export const ConvertRoute = HttpApiBuilder.group(
   LibreOfficeApi,
   "conversion",
   (handlers) =>
-    handlers.handle(
-      "convert",
-      Effect.fn("ConvertRoute")(function* (req) {
-        const fs = yield* FileSystem.FileSystem;
-        const context = yield* Effect.context<
-          FileSystem.FileSystem | Path.Path | LibreOffice
-        >();
+    handlers
+      .handle(
+        "convert",
+        Effect.fn("ConvertRoute")(function* (req) {
+          const fs = yield* FileSystem.FileSystem;
+          const context = yield* Effect.context<
+            | FileSystem.FileSystem
+            | Path.Path
+            | LibreOffice.LibreOffice
+            | HttpClient.HttpClient
+          >();
 
-        // cleanup uploaded file
-        yield* Effect.addFinalizer(() =>
-          fs.remove(req.payload.file.path).pipe(Effect.logError),
-        );
+          // cleanup uploaded file
+          yield* Effect.addFinalizer(() =>
+            fs.remove(req.payload.file.path).pipe(Effect.logError),
+          );
 
-        return Conversion.fromFile(req.payload.file.path).pipe(
-          Conversion.toStream({ format: "pdf" }),
-          Stream.mapError((e) => new ConversionError({ message: e.message })),
-          Stream.provideContext(context),
-          HttpServerResponse.stream,
-        );
-      }),
-    ),
+          return Conversion.fromFile(req.payload.file.path).pipe(
+            Conversion.toStream({ format: req.payload.format }),
+            Stream.provideContext(context),
+            HttpServerResponse.stream,
+          );
+        }),
+      )
+      .handle(
+        "convertUrl",
+        Effect.fn("ConvertUrlRoute")(function* (req) {
+          const context = yield* Effect.context<
+            | FileSystem.FileSystem
+            | Path.Path
+            | LibreOffice.LibreOffice
+            | HttpClient.HttpClient
+          >();
+
+          if (req.payload.outputUrl) {
+            yield* Conversion.fromUrl(req.payload.inputUrl).pipe(
+              Conversion.toUrl(req.payload.outputUrl, {
+                format: req.payload.format,
+              }),
+              Effect.provide(context),
+              Effect.catchAll((error) =>
+                Effect.fail(
+                  new LibreOffice.LibreOfficeError({
+                    code: "UNKNOWN",
+                    message: String(error),
+                  }),
+                ),
+              ),
+            );
+            return { status: "ok" as const };
+          }
+
+          return Conversion.fromUrl(req.payload.inputUrl).pipe(
+            Conversion.toStream({ format: req.payload.format }),
+            Stream.provideContext(context),
+            HttpServerResponse.stream,
+          );
+        }),
+      ),
 );
 
 export const ManagementRoute = HttpApiBuilder.group(

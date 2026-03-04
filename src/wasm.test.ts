@@ -1,7 +1,8 @@
 import { NodeContext } from "@effect/platform-node";
 import { assert, it } from "@effect/vitest";
 import { Effect, Layer } from "effect";
-import { LibreOfficeWasm, layer as wasmLayer } from "./wasm";
+import { LibreOffice } from "./libreoffice";
+import { layer as wasmLayer } from "./wasm";
 
 const TestLive = Layer.provideMerge(wasmLayer, NodeContext.layer);
 
@@ -9,7 +10,7 @@ it.layer(TestLive)("Wasm", (it) => {
   it.effect(
     "should convert a file",
     Effect.fn(function* () {
-      const convert = yield* LibreOfficeWasm;
+      const convert = yield* LibreOffice;
       const result = yield* convert.convert(
         new TextEncoder().encode("Hello PDF"),
         { outputFormat: "pdf" },
@@ -22,7 +23,7 @@ it.layer(TestLive)("Wasm", (it) => {
   it.effect(
     "should get page count",
     Effect.fn(function* () {
-      const convert = yield* LibreOfficeWasm;
+      const convert = yield* LibreOffice;
       const result = yield* convert.getPageCount(
         new TextEncoder().encode("Hello PDF"),
         { inputFormat: "txt" },
@@ -36,7 +37,7 @@ it.layer(TestLive)("Wasm", (it) => {
   it.effect(
     "should get document info",
     Effect.fn(function* () {
-      const convert = yield* LibreOfficeWasm;
+      const convert = yield* LibreOffice;
       const result = yield* convert.getDocumentInfo(
         new TextEncoder().encode("Hello PDF"),
         { inputFormat: "txt" },

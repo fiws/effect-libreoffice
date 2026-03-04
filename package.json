@@ -39,9 +39,7 @@
     "pdf"
   ],
   "packageManager": "pnpm@10.22.0",
-  "dependencies": {
-    "fast-xml-parser": "^5.4.1"
-  },
+  "dependencies": {},
   "peerDependencies": {
     "@effect/platform": "^0.93.3",
     "effect": "^3.19.6",
@@ -66,8 +64,7 @@
     "tsx": "^4.21.0",
     "typedoc": "^0.28.17",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18",
-    "zetajs": "^1.2.0"
+    "vitest": "^4.0.18"
   },
   "types": "./dist/index.d.mts"
 }

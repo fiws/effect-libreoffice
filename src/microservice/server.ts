@@ -25,7 +25,7 @@ const ServerLive = Layer.unwrapEffect(
 // To start the server, we use `HttpLayerRouter.serve` with the routes layer
 HttpLayerRouter.serve(AllRoutes).pipe(
   Layer.provide(ServerLive),
-  Layer.provide(LibreOffice.layerCli),
+  Layer.provide(LibreOffice.layer),
   Layer.provide(NodeContext.layer),
   Layer.launch,
   process.env.NODE_ENV !== "production"
