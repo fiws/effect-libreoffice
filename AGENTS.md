@@ -68,8 +68,3 @@ export class LibreOfficeError extends Data.TaggedError("LibreOfficeError")<{
 
 When handling errors, checking the `reason` field is common.
 
-## Docker / Integration Tests
-
-- Some tests (like `ubuntu-docker.test.ts`) require Docker.
-- They use `testcontainers` to spin up necessary environments (e.g., Ubuntu with LibreOffice).
-- Ensure Docker is running if executing these tests.

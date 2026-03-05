@@ -1,0 +1,11 @@
+node_modules
+*.pdf
+context
+dist
+docs
+tmp
+src/misc/scratchpad.ts
+.git
+.github
+.jj
+.vscode
