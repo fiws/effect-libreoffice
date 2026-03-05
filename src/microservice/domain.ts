@@ -8,7 +8,7 @@ import {
 } from "@effect/platform";
 import { Schema } from "effect";
 import { constant } from "effect/Function";
-import { LibreOfficeError } from "../libreoffice";
+import { LibreOffice } from "effect-libreoffice";
 
 // #MARK: Domain Schemas
 export const TargetFormat = Schema.Literal(
@@ -59,7 +59,7 @@ export const ConversionApi = HttpApiGroup.make("conversion")
           description: "A stream of the converted file.",
         }),
       )
-      .addError(LibreOfficeError)
+      .addError(LibreOffice.LibreOfficeError)
       .annotate(
         OpenApi.Description,
         "Convert a local file to another format using LibreOffice.",
@@ -82,7 +82,7 @@ export const ConversionApi = HttpApiGroup.make("conversion")
             "A stream of the converted file if no outputUrl provided, or { status: 'ok' } if outputUrl was provided.",
         }),
       )
-      .addError(LibreOfficeError)
+      .addError(LibreOffice.LibreOfficeError)
       .annotate(OpenApi.Description, "Convert a document from a URL."),
   )
   .prefix("/conversion");

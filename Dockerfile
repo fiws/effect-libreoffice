@@ -1,12 +1,27 @@
-FROM alpine:latest
+FROM node:24-alpine AS base
+ENV PNPM_HOME="/pnpm"
+ENV PATH="$PNPM_HOME:$PATH"
+RUN corepack enable
 
-# install fonts https://wiki.alpinelinux.org/wiki/Fonts
-RUN apk add --no-cache font-terminus font-inconsolata font-dejavu font-noto font-noto-cjk font-awesome font-noto-extra
+FROM base AS dependencies
+WORKDIR /app
+COPY package.json pnpm-lock.yaml ./
+RUN pnpm install
+COPY src/ ./src/
+COPY tsdown.config.ts tsconfig.json ./
+RUN pnpm build
 
-# install libreoffice + dependencies
-RUN apk add --no-cache libreoffice-writer python3 py3-pip openjdk11-jre-headless
+FROM base AS runner
+WORKDIR /app
+COPY --from=dependencies /app/node_modules ./node_modules
+COPY --from=dependencies /app/dist ./dist
+COPY package.json ./
+COPY tsconfig.json ./
+COPY src/ ./src/
 
-# install unoserver via pip
-RUN pip install unoserver --break-system-packages
+ENV NODE_ENV=production
+ENV PORT=3000
 
-CMD ["unoserver", "--interface", "0.0.0.0"]
+EXPOSE 3000
+
+CMD ["node", "src/microservice/server.ts"]
