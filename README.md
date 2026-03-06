@@ -4,118 +4,110 @@
 [![GitHub License](https://img.shields.io/github/license/fiws/effect-libreoffice)](https://github.com/fiws/effect-libreoffice/blob/main/LICENSE)
 [![Effect: yes](https://img.shields.io/badge/effect-yes-blue)](https://effect.website/)
 
-A Effect-based wrapper for LibreOffice, providing multiple strategies for document conversion.
+An Effect-based wrapper for document conversion using LibreOffice compiled to WebAssembly.
 
-## Implementations
+## Overview
 
-This library offers two distinct implementations for interacting with LibreOffice:
+Starting with version `2.x.x`, `effect-libreoffice` executes conversions directly within your Node.js application using `@matbee/libreoffice-converter`. It requires **no local installation** of LibreOffice and **no external servers**, making it highly portable and easy to use.
 
-1.  **LibreOffice CLI (`LibreOffice.layerCli`)**: Uses the `soffice` command-line tool directly.
-2.  **Uno (`LibreOffice.layerUno`)**: Connects to a running `unoserver` instance.
+### Installation
 
-### Comparison
+Install the library along with its peer dependencies:
 
-| Feature         | CLI (`layerCli`)                         | Uno (`layerUno`)                                           |
-| :-------------- | :--------------------------------------- | :--------------------------------------------------------- |
-| **Method**      | Spawns a new process for each conversion | Connects to a long-running server                          |
-| **Performance** | Slower (~440ms/file)                     | Fast (~60ms/file)                                          |
-| **Setup**       | Requires LibreOffice installed locally   | Requires [unoserver](https://github.com/unoconv/unoserver) |
-| **Best For**    | CLI tools, low volume, simple setup      | Servers, high volume, performance critical                 |
+```bash
+pnpm add effect-libreoffice effect @effect/platform
+```
+
+You must also install the WebAssembly converter package:
+
+```bash
+pnpm add @matbee/libreoffice-converter
+```
 
 ## Usage
 
 ### Functional API (Pipeable)
 
-For a more functional approach, you can use the `Conversion` module.
+For a functional approach, use the `Conversion` module to define conversion pipelines.
 
 ```typescript
 import { Conversion, LibreOffice } from "effect-libreoffice";
 import { NodeContext } from "@effect/platform-node";
-import { Effect } from "effect";
+import { Effect, Layer } from "effect";
 
+// Create a conversion pipeline
 const program = Conversion.fromFile("input.docx").pipe(
   Conversion.toFile("output.pdf", { format: "pdf" }),
 );
 
+// Provide the required layers
+const MainLayer = Layer.mergeAll(
+  LibreOffice.layer,
+  NodeContext.layer
+);
+
 program.pipe(
-  Effect.provide(LibreOffice.layerCli),
-  Effect.provide(NodeContext.layer),
+  Effect.provide(MainLayer),
   Effect.runPromise,
 );
 ```
 
-### Default Implementation (CLI)
+The `Conversion` API supports a variety of sources and targets:
 
-Best for quick scripts or when you can't run a unoserver.
+- Sources: `fromFile(path)`, `fromBuffer(data)`, `fromStream(stream)`, `fromUrl(url)`
+- Targets: `toFile(path, options)`, `toStream(options)`, `toUrl(url, options)`
+
+*(Note: `fromUrl` and `toUrl` require an `HttpClient` layer like `FetchHttpClient.layer` or `NodeHttpClient.layerUndici` to be provided)*
+
+### Direct Service Usage
+
+For lower-level access, you can use the `LibreOffice` service directly. This provides methods like `convert`, `getPageCount`, `getDocumentInfo`, and more.
 
 ```typescript
 import { NodeContext } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
+import { FileSystem } from "@effect/platform";
 import { LibreOffice } from "effect-libreoffice";
 
 const program = Effect.gen(function* () {
-  const libre = yield* LibreOffice;
-  yield* libre.convertLocalFile("input.docx", "output.pdf");
+  const fs = yield* FileSystem.FileSystem;
+  const libre = yield* LibreOffice.LibreOffice;
+  
+  // Read the input document into a Uint8Array
+  const inputData = yield* fs.readFile("input.docx");
+  
+  // Convert it using the LibreOffice engine
+  const result = yield* libre.convert(inputData, {
+    inputFormat: "docx",
+    outputFormat: "pdf",
+  });
+  
+  // Write the resulting Uint8Array to disk
+  yield* fs.writeFile("output.pdf", result.data);
+  
+  // You can also access other document utilities:
+  const pageCount = yield* libre.getPageCount(inputData, { inputFormat: "docx" });
+  console.log(`The document has ${pageCount} pages.`);
 });
 
-const Layers = LibreOffice.layerCli.pipe(Layer.provide(NodeContext.layer));
-
-program.pipe(Effect.provide(Layers), Effect.runPromise);
-```
-
-### Uno Implementation (Start Server)
-
-Best for servers, has a lot better performance. This starts a unoserver for you. You will need to have [unoserver](https://github.com/unoconv/unoserver) binary installed and available in your PATH.
-
-```typescript
-import { NodeContext, NodeHttpClient } from "@effect/platform-node";
-import { Effect, Layer } from "effect";
-import { LibreOffice, UnoServer } from "effect-libreoffice";
-
-const program = Effect.gen(function* () {
-  const libre = yield* LibreOffice;
-  yield* libre.convertLocalFile("input.docx", "output.pdf");
-});
-
-const Layers = LibreOffice.layerUno.pipe(
-  Layer.provide(UnoServer.Default), // This will start a unoserver
-  Layer.provide(NodeContext.layer),
-  Layer.provide(NodeHttpClient.layer),
+const MainLayer = Layer.mergeAll(
+  LibreOffice.layer,
+  NodeContext.layer
 );
 
-program.pipe(Effect.provide(Layers), Effect.runPromise);
+program.pipe(Effect.provide(MainLayer), Effect.runPromise);
 ```
 
-### Uno Implementation (Remote)
+## Available Service Methods
 
-If you want to manage the [unoserver](https://github.com/unoconv/unoserver) yourself, you can use the remote implementation of Uno.
+The `LibreOffice.LibreOffice` service exposes the following WASM-based operations:
 
-```yaml
-# compose.yml
-services:
-  unoserver:
-    image: libreofficedocker/libreoffice-unoserver:3.22
-    ports:
-      - "2003:2003"
-    volumes:
-      - /tmp:/tmp # some shared directory where files can be written and read
-```
-
-```typescript
-import { NodeHttpClient } from "@effect/platform-node";
-import { Effect, Layer } from "effect";
-import { LibreOffice, UnoServer } from "effect-libreoffice";
-
-const program = Effect.gen(function* () {
-  const libre = yield* LibreOffice;
-  yield* libre.convertLocalFile("input.docx", "output.pdf");
-});
-
-const UnoLayers = LibreOffice.layerUno.pipe(
-  Layer.provide(NodeHttpClient.layerUndici),
-  Layer.provide(UnoServer.Remote), // Defaults to localhost:2003
-  // or: Layer.provide(UnoServer.remoteWithURL("http://localhost:1111/custom/RPC2"))
-);
-
-program.pipe(Effect.provide(UnoLayers), Effect.runPromise);
-```
+- `convert`: Convert documents to a different format
+- `getPageCount`: Get the number of pages/parts in a document
+- `getDocumentInfo`: Get document type and valid output formats
+- `renderPage`: Render a single page as an image
+- `renderPagePreviews`: Render multiple page previews
+- `renderPageFullQuality`: Render a page at full quality natively
+- `getDocumentText`: Extract text content from a document
+- `getPageNames`: Get page or slide names from a document
+- `openDocument` / `editorOperation` / `closeDocument`: Session-based document editing

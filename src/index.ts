@@ -1,9 +1,5 @@
-import {
-  type KnownSupportedOutputFormat,
-  type OutputPath,
-  type Reason,
-} from "./shared";
+import type { KnownSupportedOutputFormat, OutputPath, Reason } from "./shared";
 export type { OutputPath, KnownSupportedOutputFormat, Reason };
 
-export * as LibreOffice from "./libreoffice";
 export * as Conversion from "./Conversion";
+export * as LibreOffice from "./libreoffice";

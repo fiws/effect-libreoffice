@@ -3,22 +3,22 @@ import { createServer as createServerH2 } from "node:http2";
 import { HttpLayerRouter } from "@effect/platform";
 import {
   NodeContext,
+  NodeHttpClient,
   NodeHttpServer,
   NodeRuntime,
-  NodeHttpClient,
 } from "@effect/platform-node";
 import { Config, Effect, Layer, Logger } from "effect";
 import { LibreOffice } from "effect-libreoffice";
 import { AllRoutes } from "./index.ts";
 
 const ServerLive = Layer.unwrapEffect(
-  Effect.gen(function*() {
+  Effect.gen(function* () {
     const h2c = yield* Config.boolean("H2C").pipe(Config.withDefault(false));
     const port = yield* Config.integer("PORT").pipe(Config.withDefault(3000));
     return h2c
       ? NodeHttpServer.layer(() => createServerH2() as unknown as Server, {
-        port,
-      })
+          port,
+        })
       : NodeHttpServer.layer(createServer, { port });
   }),
 );
