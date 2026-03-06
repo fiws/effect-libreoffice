@@ -6,7 +6,7 @@
 - **Test (All)**: `pnpm test` (Runs `vitest run`)
 - **Test (Single)**: `pnpm test path/to/test.ts`
 - **Type Check**: `pnpm type-check` (Runs `tsc --noEmit`)
-- **Lint & Format**: `pnpm biome check .` (or `pnpm biome check --apply .` to fix)
+- **Lint & Format**: `pnpm biome check .` (or `pnpm biome check --write .` to fix)
 
 ## Code Style & Conventions
 

@@ -3,9 +3,9 @@ import { createServer as createServerH2 } from "node:http2";
 import { HttpLayerRouter } from "@effect/platform";
 import {
   NodeContext,
+  NodeHttpClient,
   NodeHttpServer,
   NodeRuntime,
-  NodeHttpClient,
 } from "@effect/platform-node";
 import { Config, Effect, Layer, Logger } from "effect";
 import { LibreOffice } from "effect-libreoffice";
