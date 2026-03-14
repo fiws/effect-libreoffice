@@ -5,6 +5,7 @@
   "version": "2.0.0-dev",
   "scripts": {
     "build": "pnpm -r build",
+    "build:docker": "docker build -f apps/server/Dockerfile -t fiws/libre-convert .",
     "test": "vitest run",
     "bench": "vitest bench",
     "type-check": "tsc --noEmit",
