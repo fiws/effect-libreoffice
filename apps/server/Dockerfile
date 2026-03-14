@@ -6,7 +6,6 @@ RUN corepack enable
 FROM base AS builder
 WORKDIR /app
 COPY . .
-RUN pnpm install
 RUN pnpm deploy --filter @effect-libreoffice/server --prod --legacy /app/out
 
 FROM base AS runner
