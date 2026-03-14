@@ -8,7 +8,7 @@ import {
   type Path,
 } from "@effect/platform";
 import { LibreOfficeApi } from "@effect-libreoffice/api";
-import { Effect, Layer, Stream } from "effect";
+import { Effect, Layer, Predicate, Stream } from "effect";
 import { Conversion, LibreOffice } from "effect-libreoffice";
 
 // LibreOfficeApi route implementation
@@ -44,22 +44,13 @@ export const ConvertRoute = HttpApiBuilder.group(
       .handle(
         "convertUrl",
         Effect.fn("ConvertUrlRoute")(function* (req) {
-          const context = yield* Effect.context<
-            | FileSystem.FileSystem
-            | Path.Path
-            | LibreOffice.LibreOffice
-            | HttpClient.HttpClient
-          >();
-
           if (req.payload.outputUrl) {
             yield* Conversion.fromUrl(req.payload.inputUrl).pipe(
               Conversion.toUrl(req.payload.outputUrl, {
                 format: req.payload.format,
               }),
-              // something is very wrong here, Predicate.is tag is not working
-              // Effec.catchTag does not list the errors expected (PlatformError, HttpClientError, LibreOfficeError)
               Effect.mapError((error) =>
-                error._tag === "LibreOfficeError"
+                Predicate.isTagged(error, "LibreOfficeError")
                   ? error
                   : new LibreOffice.LibreOfficeError({
                       code: "UNKNOWN",
@@ -69,6 +60,13 @@ export const ConvertRoute = HttpApiBuilder.group(
             );
             return { status: "ok" as const };
           }
+
+          const context = yield* Effect.context<
+            | FileSystem.FileSystem
+            | Path.Path
+            | LibreOffice.LibreOffice
+            | HttpClient.HttpClient
+          >();
 
           return Conversion.fromUrl(req.payload.inputUrl).pipe(
             Conversion.toStream({ format: req.payload.format }),
