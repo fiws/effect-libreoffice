@@ -9,6 +9,6 @@ export default defineConfig({
       "effect-libreoffice": "packages/effect-libreoffice/src/index.ts",
       "@effect-libreoffice/api": "packages/api/src/index.ts",
     },
-    fileParallelism: false,
+    testTimeout: 10_000,
   },
 });
