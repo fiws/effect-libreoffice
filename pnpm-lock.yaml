@@ -90,8 +90,8 @@ importers:
         specifier: ^0.94.5
         version: 0.94.5(effect@3.19.19)
       '@matbee/libreoffice-converter':
-        specifier: ^2.5.0
-        version: 2.5.0
+        specifier: ^2.5.1
+        version: 2.5.1
       effect:
         specifier: ^3.19.19
         version: 3.19.19
@@ -455,15 +455,6 @@ packages:
 
   '@kwsites/file-exists@1.1.1':
     resolution: {integrity: sha512-m9/5YGR18lIwxSFDwfE3oA7bWuq9kdau6ugN4H2rJeyhFQZcG9AgSHkQtSD15a8WvTgfz9aikZMrKPHvbpqFiw==}
-
-  '@matbee/libreoffice-converter@2.5.0':
-    resolution: {integrity: sha512-uOJhx6GL3xbiQp5KBAUU7PcdXvj2/aTBXEtnFQQ5QI5jh8vReodFoBTToxRDaqhLxz4YjKTY22tc15IAa7qHJA==}
-    engines: {node: '>=18.0.0'}
-    peerDependencies:
-      sharp: '>=0.32.0'
-    peerDependenciesMeta:
-      sharp:
-        optional: true
 
   '@matbee/libreoffice-converter@2.5.1':
     resolution: {integrity: sha512-aGzLdMBdWEW1pGR9maxpYHxaJfbUB78adlh+BVV15mGGYrGrE4iu19oy/Vf93zF8wss150M4Ugp3Sdk8Vko6SA==}
@@ -2230,10 +2221,6 @@ snapshots:
       debug: 4.4.3
     transitivePeerDependencies:
       - supports-color
-
-  '@matbee/libreoffice-converter@2.5.0':
-    dependencies:
-      zod: 4.3.6
 
   '@matbee/libreoffice-converter@2.5.1':
     dependencies:
