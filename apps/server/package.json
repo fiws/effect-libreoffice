@@ -1,0 +1,22 @@
+{
+  "name": "@effect-libreoffice/server",
+  "version": "2.0.0-dev",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "tsx --watch src/server.ts",
+    "start": "node src/server.ts"
+  },
+  "dependencies": {
+    "@effect-libreoffice/api": "workspace:*",
+    "@effect/platform": "^0.94.5",
+    "@effect/platform-node": "^0.104.1",
+    "@matbee/libreoffice-converter": "^2.5.1",
+    "effect": "^3.19.19",
+    "effect-libreoffice": "workspace:*"
+  },
+  "exports": {
+    ".": "./dist/server.mjs",
+    "./package.json": "./package.json"
+  }
+}

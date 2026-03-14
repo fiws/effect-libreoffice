@@ -1,6 +1,9 @@
 {
   "$schema": "https://typedoc.org/schema.json",
-  "entryPoints": ["./src/index.ts"],
+  "entryPoints": [
+    "./packages/effect-libreoffice/src/index.ts",
+    "./packages/api/src/index.ts"
+  ],
   "out": "docs",
   "plugin": [],
   "navigation": {

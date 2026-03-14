@@ -28,11 +28,6 @@ jobs:
       - name: Install dependencies
         run: pnpm install
 
-      - name: Install LibreOffice
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y --no-install-recommends libreoffice-writer
-
       - name: Lint
         run: pnpm biome ci .
 

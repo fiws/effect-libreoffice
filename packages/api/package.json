@@ -1,0 +1,26 @@
+{
+  "name": "@effect-libreoffice/api",
+  "version": "2.0.0-dev",
+  "type": "module",
+  "description": "API Schema for LibreOffice microservice.",
+  "author": "Filip Weiss <me@fiws.net>",
+  "license": "ISC",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist",
+    "src"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {
+    "effect-libreoffice": "workspace:*"
+  },
+  "peerDependencies": {
+    "@effect/platform": "^0.94.5",
+    "effect": "^3.19.19"
+  }
+}

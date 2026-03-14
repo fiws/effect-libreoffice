@@ -1,10 +1,15 @@
-import { FileSystem, Path } from "@effect/platform";
+import { FetchHttpClient, FileSystem, Path } from "@effect/platform";
 import { NodeContext } from "@effect/platform-node";
 import { assert, it } from "@effect/vitest";
+import * as effect from "effect";
 import { Chunk, Effect, Layer, Option, Stream } from "effect";
-import { Conversion, LibreOffice } from "effect-libreoffice";
+import { Conversion, LibreOffice } from "./index";
 
-const TestLive = Layer.provideMerge(LibreOffice.layerCli, NodeContext.layer);
+const TestLive = Layer.mergeAll(
+  LibreOffice.layer,
+  NodeContext.layer,
+  FetchHttpClient.layer,
+);
 
 it.layer(TestLive)("Conversion API", (it) => {
   it.scoped(
@@ -187,14 +192,22 @@ it.layer(TestLive)("Conversion API", (it) => {
       const tempDir = yield* fs.makeTempDirectoryScoped();
       const targetFile = path.join(tempDir, "stream-error.pdf");
 
-      const stream = Stream.fail("Stream Failure");
+      class StreamError extends effect.Data.TaggedError("StreamError")<{
+        message: string;
+      }> {}
+      const stream = Stream.fail(
+        new StreamError({ message: "Stream Failure" }),
+      );
 
       const conversion = Conversion.fromStream(stream, { format: "txt" }).pipe(
         Conversion.toFile(targetFile, { format: "pdf" }),
       );
 
       const error = yield* Effect.flip(conversion);
-      assert.strictEqual(error, "Stream Failure");
+      assert.strictEqual(
+        (error as { message: string }).message,
+        "Stream Failure",
+      );
     }),
   );
 

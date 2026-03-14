@@ -27,4 +27,4 @@ jobs:
           registry-url: "https://registry.npmjs.org"
       - run: pnpm install
       - run: pnpm build
-      - run: pnpm publish --no-git-checks
+      - run: pnpm -r publish --no-git-checks --access public

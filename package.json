@@ -1,73 +1,32 @@
 {
-  "name": "effect-libreoffice",
+  "name": "effect-libreoffice-workspace",
+  "private": true,
   "type": "module",
-  "version": "1.0.7",
-  "description": "A effect based LibreOffice converter library. Can convert docx to pdf.",
-  "author": "Filip Weiss <me@fiws.net>",
-  "license": "ISC",
-  "homepage": "https://github.com/fiws/effect-libreoffice",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fiws/effect-libreoffice.git"
-  },
-  "bugs": {
-    "url": "https://github.com/fiws/effect-libreoffice/issues"
-  },
-  "exports": {
-    ".": "./dist/index.mjs",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "dist"
-  ],
+  "version": "2.0.0-dev",
   "scripts": {
-    "build": "tsdown",
-    "prepublishOnly": "pnpm build",
+    "build": "pnpm -r build",
+    "build:docker": "docker build -f apps/server/Dockerfile -t fiws/libre-convert .",
     "test": "vitest run",
     "bench": "vitest bench",
     "type-check": "tsc --noEmit",
     "generate-docs": "typedoc",
-    "format-fix": "biome format --write",
-    "dev:microservice": "tsx --watch src/microservice/server.ts"
+    "format-fix": "biome format --write"
   },
-  "keywords": [
-    "effect",
-    "effect-ts",
-    "libreoffice",
-    "convert",
-    "docx",
-    "pdf"
-  ],
   "packageManager": "pnpm@10.22.0",
-  "dependencies": {
-    "fast-xml-parser": "^5.4.1"
-  },
-  "peerDependencies": {
-    "@effect/platform": "^0.93.3",
-    "effect": "^3.19.6",
-    "@matbee/libreoffice-converter": "^2.5.0"
-  },
-  "peerDependenciesMeta": {
-    "@matbee/libreoffice-converter": {
-      "optional": true
-    }
-  },
   "devDependencies": {
-    "@biomejs/biome": "2.3.15",
-    "@effect/language-service": "^0.77.0",
+    "@biomejs/biome": "2.4.7",
+    "@effect/language-service": "^0.80.0",
     "@effect/platform": "^0.94.5",
     "@effect/platform-node": "^0.104.1",
     "@effect/vitest": "^0.27.0",
-    "@matbee/libreoffice-converter": "^2.5.0",
+    "@matbee/libreoffice-converter": "^2.5.1",
     "effect": "^3.19.19",
     "testcontainers": "^11.12.0",
     "tinybench": "^6.0.0",
-    "tsdown": "^0.20.3",
+    "tsdown": "^0.21.2",
     "tsx": "^4.21.0",
     "typedoc": "^0.28.17",
     "typescript": "^5.9.3",
-    "vitest": "^4.0.18",
-    "zetajs": "^1.2.0"
-  },
-  "types": "./dist/index.d.mts"
+    "vitest": "^4.1.0"
+  }
 }

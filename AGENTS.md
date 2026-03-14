@@ -6,7 +6,7 @@
 - **Test (All)**: `pnpm test` (Runs `vitest run`)
 - **Test (Single)**: `pnpm test path/to/test.ts`
 - **Type Check**: `pnpm type-check` (Runs `tsc --noEmit`)
-- **Lint & Format**: `pnpm biome check .` (or `pnpm biome check --apply .` to fix)
+- **Lint & Format**: `pnpm biome check .` (or `pnpm biome check --write .` to fix)
 
 ## Code Style & Conventions
 
@@ -68,8 +68,3 @@ export class LibreOfficeError extends Data.TaggedError("LibreOfficeError")<{
 
 When handling errors, checking the `reason` field is common.
 
-## Docker / Integration Tests
-
-- Some tests (like `ubuntu-docker.test.ts`) require Docker.
-- They use `testcontainers` to spin up necessary environments (e.g., Ubuntu with LibreOffice).
-- Ensure Docker is running if executing these tests.

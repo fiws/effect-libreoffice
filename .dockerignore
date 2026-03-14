@@ -5,4 +5,7 @@ dist
 docs
 tmp
 src/misc/scratchpad.ts
-tsconfig.tsbuildinfo
+.git
+.github
+.jj
+.vscode

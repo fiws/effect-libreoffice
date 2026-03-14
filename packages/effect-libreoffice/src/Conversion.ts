@@ -1,4 +1,13 @@
-import { FileSystem, Path } from "@effect/platform";
+import {
+  FileSystem,
+  HttpClient,
+  HttpClientRequest,
+  Path,
+} from "@effect/platform";
+import type {
+  InputFormat,
+  OutputFormat,
+} from "@matbee/libreoffice-converter/types";
 import { Effect, Pipeable, Stream } from "effect";
 import { LibreOffice } from "./index";
 import type { OutputPath } from "./shared";
@@ -28,6 +37,11 @@ export type Input<E = unknown> =
   | {
       readonly _tag: "Buffer";
       readonly data: Uint8Array;
+      readonly format?: string;
+    }
+  | {
+      readonly _tag: "Url";
+      readonly url: string;
       readonly format?: string;
     };
 
@@ -65,7 +79,7 @@ const proto = {
  * });
  *
  * program.pipe(
- *   Effect.provide(LibreOffice.layerCli),
+ *   Effect.provide(LibreOffice.layer),
  *   Effect.provide(NodeContext.layer),
  *   Effect.runPromise
  * );
@@ -99,7 +113,7 @@ export const fromFile = (path: string): Conversion<never> => {
  * });
  *
  * program.pipe(
- *   Effect.provide(LibreOffice.layerCli),
+ *   Effect.provide(LibreOffice.layer),
  *   Effect.provide(NodeContext.layer),
  *   Effect.runPromise
  * );
@@ -136,7 +150,7 @@ export const fromStream = <E>(
  * });
  *
  * program.pipe(
- *   Effect.provide(LibreOffice.layerCli),
+ *   Effect.provide(LibreOffice.layer),
  *   Effect.provide(NodeContext.layer),
  *   Effect.runPromise
  * );
@@ -149,6 +163,54 @@ export const fromBuffer = (
   conversion.input = { _tag: "Buffer", data, format: options?.format };
   return conversion;
 };
+
+/**
+ * Creates a conversion pipeline from a URL.
+ *
+ * @param url - The input URL.
+ * @param options - Optional configuration.
+ * @since 2.0.0
+ */
+export const fromUrl = (
+  url: string,
+  options?: { readonly format?: string },
+): Conversion<never> => {
+  const conversion = Object.create(proto);
+  conversion.input = { _tag: "Url", url, format: options?.format };
+  return conversion;
+};
+
+const resolveInputData = <E>(self: Conversion<E>, fs: FileSystem.FileSystem) =>
+  Effect.gen(function* () {
+    if (self.input._tag === "File") {
+      return yield* fs.readFile(self.input.path);
+    }
+
+    if (self.input._tag === "Stream") {
+      const chunks = yield* Stream.runCollect(self.input.stream);
+      let totalLength = 0;
+      for (const chunk of chunks) {
+        totalLength += chunk.length;
+      }
+      const data = new Uint8Array(totalLength);
+      let offset = 0;
+      for (const chunk of chunks) {
+        data.set(chunk, offset);
+        offset += chunk.length;
+      }
+      return data;
+    }
+
+    if (self.input._tag === "Url") {
+      const httpClient = yield* HttpClient.HttpClient;
+      const request = HttpClientRequest.get(self.input.url);
+      const response = yield* httpClient.execute(request);
+      const arrayBuffer = yield* response.arrayBuffer;
+      return new Uint8Array(arrayBuffer);
+    }
+
+    return self.input.data;
+  });
 
 /**
  * Converts input to a file.
@@ -169,7 +231,7 @@ export const fromBuffer = (
  * });
  *
  * program.pipe(
- *   Effect.provide(LibreOffice.layerCli),
+ *   Effect.provide(LibreOffice.layer),
  *   Effect.provide(NodeContext.layer),
  *   Effect.runPromise
  * );
@@ -178,37 +240,92 @@ export const toFile =
   (output: OutputPath, options?: { readonly format?: string }) =>
   <E>(self: Conversion<E>) =>
     Effect.gen(function* () {
-      const libre = yield* LibreOffice;
+      const libre = yield* LibreOffice.LibreOffice;
       const fs = yield* FileSystem.FileSystem;
       const path = yield* Path.Path;
 
-      let inputPath: string;
+      const inputData = yield* resolveInputData(self, fs);
 
-      if (self.input._tag === "File") {
-        inputPath = self.input.path;
-      } else if (self.input._tag === "Stream") {
-        const tempDir = yield* fs.makeTempDirectoryScoped();
-        const extension = self.input.format ? `.${self.input.format}` : "";
-        inputPath = path.join(tempDir, `input${extension}`);
+      const filename =
+        self.input._tag === "File" ? path.basename(self.input.path) : undefined;
+      const outputExt = options?.format ?? path.extname(output).slice(1);
 
-        // we need to write the stream to a file (libreoffice only accepts files as input)
-        yield* Stream.run(self.input.stream, fs.sink(inputPath));
-      } else {
-        const tempDir = yield* fs.makeTempDirectoryScoped();
-        const extension = self.input.format ? `.${self.input.format}` : "";
-        inputPath = path.join(tempDir, `input${extension}`);
-        yield* fs.writeFile(inputPath, self.input.data);
+      if (!outputExt) {
+        return yield* Effect.fail(
+          new LibreOffice.LibreOfficeError({
+            code: "UNKNOWN",
+            message: "Output format could not be determined",
+          }),
+        );
       }
 
-      yield* libre.convertLocalFile(inputPath, output, options?.format);
+      const result = yield* libre.convert(
+        inputData,
+        {
+          outputFormat: outputExt as OutputFormat,
+          inputFormat: self.input.format as InputFormat,
+        },
+        filename,
+      );
+
+      yield* fs.writeFile(output, result.data);
+    }).pipe(Effect.scoped);
+
+/**
+ * Converts input and uploads the result to a URL.
+ *
+ * @param outputUrl - The output URL.
+ * @param options - Conversion options.
+ * @since 2.0.0
+ */
+export const toUrl =
+  (outputUrl: string, options?: { readonly format?: string }) =>
+  <E>(self: Conversion<E>) =>
+    Effect.gen(function* () {
+      const libre = yield* LibreOffice.LibreOffice;
+      const fs = yield* FileSystem.FileSystem;
+      const httpClient = yield* HttpClient.HttpClient;
+      const path = yield* Path.Path;
+
+      const inputData = yield* resolveInputData(self, fs);
+
+      const filename =
+        self.input._tag === "File"
+          ? path.basename(self.input.path)
+          : self.input._tag === "Url"
+            ? new URL(self.input.url).pathname.split("/").pop() || "unknown"
+            : undefined;
+
+      const outputExt =
+        options?.format ?? new URL(outputUrl).pathname.split(".").pop();
+
+      if (!outputExt) {
+        return yield* Effect.fail(
+          new LibreOffice.LibreOfficeError({
+            code: "UNKNOWN",
+            message: "Output format could not be determined",
+          }),
+        );
+      }
+
+      const result = yield* libre.convert(
+        inputData,
+        {
+          outputFormat: outputExt as OutputFormat,
+          inputFormat: self.input.format as InputFormat,
+        },
+        filename,
+      );
+
+      const request = HttpClientRequest.put(outputUrl).pipe(
+        HttpClientRequest.bodyUint8Array(result.data),
+      );
+
+      yield* httpClient.execute(request);
     }).pipe(Effect.scoped);
 
 /**
  * Converts input to a stream.
- *
- * NOTE: This method writes the output to a temporary file internally because LibreOffice
- * does not support streaming output directly. The temporary file is automatically cleaned up
- * when the stream is finalized / scope is closed.
  *
  * @param options - Conversion options.
  * @since 2.0.0
@@ -228,7 +345,7 @@ export const toFile =
  * });
  *
  * program.pipe(
- *   Effect.provide(LibreOffice.layerCli),
+ *   Effect.provide(LibreOffice.layer),
  *   Effect.provide(NodeContext.layer),
  *   Effect.runPromise
  * );
@@ -238,14 +355,26 @@ export const toStream =
   <E>(self: Conversion<E>) =>
     Stream.unwrapScoped(
       Effect.gen(function* () {
+        const libre = yield* LibreOffice.LibreOffice;
         const fs = yield* FileSystem.FileSystem;
         const path = yield* Path.Path;
 
-        const tempDir = yield* fs.makeTempDirectoryScoped();
-        const outputPath = path.join(tempDir, `output.${options.format}`);
+        const inputData = yield* resolveInputData(self, fs);
 
-        yield* toFile(outputPath, options)(self);
+        const filename =
+          self.input._tag === "File"
+            ? path.basename(self.input.path)
+            : undefined;
 
-        return fs.stream(outputPath);
+        const result = yield* libre.convert(
+          inputData,
+          {
+            outputFormat: options.format as OutputFormat,
+            inputFormat: self.input.format as InputFormat,
+          },
+          filename,
+        );
+
+        return Stream.make(result.data);
       }),
     );

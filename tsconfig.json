@@ -8,8 +8,7 @@
     "resolveJsonModule": true,
     "strict": true,
     "noUnusedLocals": true,
-    "declaration": true,
-    "emitDeclarationOnly": true,
+    "noEmit": true,
     "esModuleInterop": true,
     "isolatedModules": true,
     "verbatimModuleSyntax": true,
@@ -17,7 +16,8 @@
     "types": ["vitest/importMeta"],
     "allowImportingTsExtensions": true,
     "paths": {
-      "effect-libreoffice": ["./src/index.ts"]
+      "effect-libreoffice": ["./packages/effect-libreoffice/src/index.ts"],
+      "@effect-libreoffice/api": ["./packages/api/src/index.ts"]
     },
     "plugins": [
       {
@@ -25,5 +25,5 @@
       }
     ]
   },
-  "include": ["src"]
+  "include": ["packages/*/src", "apps/*/src"]
 }
