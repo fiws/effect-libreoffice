@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 RUN pnpm deploy --filter @effect-libreoffice/server --prod --legacy /app/out
 
-FROM base AS runner
+FROM gcr.io/distroless/nodejs24-debian13:nonroot AS runner
 WORKDIR /app
 COPY --from=builder /app/out/ .
 
@@ -17,4 +17,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["node", "src/server.ts"]
+CMD ["src/server.ts"]
