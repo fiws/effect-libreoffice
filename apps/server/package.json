@@ -4,9 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "tsdown src/server.ts",
     "dev": "tsx --watch src/server.ts",
-    "start": "node dist/server.mjs"
+    "start": "node src/server.ts"
   },
   "dependencies": {
     "@effect-libreoffice/api": "workspace:*",

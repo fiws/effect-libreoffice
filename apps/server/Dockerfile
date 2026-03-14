@@ -7,7 +7,6 @@ FROM base AS builder
 WORKDIR /app
 COPY . .
 RUN pnpm install
-RUN pnpm build
 RUN pnpm deploy --filter @effect-libreoffice/server --prod --legacy /app/out
 
 FROM base AS runner
@@ -19,4 +18,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["node", "dist/server.mjs"]
+CMD ["node", "src/server.ts"]
