@@ -1,0 +1,29 @@
+{
+  "name": "effect-libreoffice",
+  "version": "2.0.0-dev",
+  "type": "module",
+  "description": "A effect based LibreOffice converter library. Can convert docx to pdf.",
+  "author": "Filip Weiss <me@fiws.net>",
+  "license": "ISC",
+  "exports": {
+    ".": "./dist/index.mjs",
+    "./package.json": "./package.json"
+  },
+  "files": [
+    "dist"
+  ],
+  "scripts": {
+    "build": "tsdown"
+  },
+  "dependencies": {},
+  "peerDependencies": {
+    "@effect/platform": "^0.94.5",
+    "effect": "^3.19.19",
+    "@matbee/libreoffice-converter": "^2.5.0"
+  },
+  "peerDependenciesMeta": {
+    "@matbee/libreoffice-converter": {
+      "optional": true
+    }
+  }
+}

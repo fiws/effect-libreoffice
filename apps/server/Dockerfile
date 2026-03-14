@@ -5,9 +5,8 @@ RUN corepack enable
 
 FROM base AS dependencies
 WORKDIR /app
-COPY package.json pnpm-lock.yaml ./
-RUN pnpm install
 COPY . .
+RUN pnpm install
 RUN pnpm build
 
 FROM base AS runner
@@ -19,4 +18,4 @@ ENV PORT=3000
 
 EXPOSE 3000
 
-CMD ["node", "src/microservice/server.ts"]
+CMD ["npx", "tsx", "apps/server/src/server.ts"]

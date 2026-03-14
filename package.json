@@ -1,55 +1,17 @@
 {
-  "name": "effect-libreoffice",
+  "name": "effect-libreoffice-workspace",
+  "private": true,
   "type": "module",
   "version": "2.0.0-dev",
-  "description": "A effect based LibreOffice converter library. Can convert docx to pdf.",
-  "author": "Filip Weiss <me@fiws.net>",
-  "license": "ISC",
-  "homepage": "https://github.com/fiws/effect-libreoffice",
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/fiws/effect-libreoffice.git"
-  },
-  "bugs": {
-    "url": "https://github.com/fiws/effect-libreoffice/issues"
-  },
-  "exports": {
-    ".": "./dist/index.mjs",
-    "./package.json": "./package.json"
-  },
-  "files": [
-    "dist"
-  ],
   "scripts": {
-    "build": "tsdown",
-    "prepublishOnly": "pnpm build",
+    "build": "pnpm -r build",
     "test": "vitest run",
     "bench": "vitest bench",
     "type-check": "tsc --noEmit",
     "generate-docs": "typedoc",
-    "format-fix": "biome format --write",
-    "dev:microservice": "tsx --watch src/microservice/server.ts"
+    "format-fix": "biome format --write"
   },
-  "keywords": [
-    "effect",
-    "effect-ts",
-    "libreoffice",
-    "convert",
-    "docx",
-    "pdf"
-  ],
   "packageManager": "pnpm@10.22.0",
-  "dependencies": {},
-  "peerDependencies": {
-    "@effect/platform": "^0.93.3",
-    "effect": "^3.19.6",
-    "@matbee/libreoffice-converter": "^2.5.0"
-  },
-  "peerDependenciesMeta": {
-    "@matbee/libreoffice-converter": {
-      "optional": true
-    }
-  },
   "devDependencies": {
     "@biomejs/biome": "2.3.15",
     "@effect/language-service": "^0.77.0",
@@ -65,6 +27,5 @@
     "typedoc": "^0.28.17",
     "typescript": "^5.9.3",
     "vitest": "^4.0.18"
-  },
-  "types": "./dist/index.d.mts"
+  }
 }

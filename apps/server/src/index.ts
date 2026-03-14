@@ -7,9 +7,9 @@ import {
   HttpServerResponse,
   type Path,
 } from "@effect/platform";
+import { LibreOfficeApi } from "@effect-libreoffice/api";
 import { Effect, Layer, Stream } from "effect";
 import { Conversion, LibreOffice } from "effect-libreoffice";
-import { LibreOfficeApi } from "./domain.ts";
 
 // LibreOfficeApi route implementation
 export const ConvertRoute = HttpApiBuilder.group(

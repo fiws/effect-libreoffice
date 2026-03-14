@@ -17,7 +17,8 @@
     "types": ["vitest/importMeta"],
     "allowImportingTsExtensions": true,
     "paths": {
-      "effect-libreoffice": ["./src/index.ts"]
+      "effect-libreoffice": ["./packages/effect-libreoffice/src/index.ts"],
+      "@effect-libreoffice/api": ["./packages/api/src/index.ts"]
     },
     "plugins": [
       {
@@ -25,5 +26,5 @@
       }
     ]
   },
-  "include": ["src"]
+  "include": ["packages/*/src", "apps/*/src"]
 }

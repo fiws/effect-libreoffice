@@ -51,6 +51,51 @@ importers:
         specifier: ^4.0.18
         version: 4.0.18(@types/node@25.3.2)(tsx@4.21.0)(yaml@2.8.2)
 
+  apps/server:
+    dependencies:
+      '@effect-libreoffice/api':
+        specifier: workspace:*
+        version: link:../../packages/api
+      '@effect/platform':
+        specifier: ^0.94.5
+        version: 0.94.5(effect@3.19.19)
+      '@effect/platform-node':
+        specifier: ^0.104.1
+        version: 0.104.1(@effect/cluster@0.53.5(@effect/platform@0.94.5(effect@3.19.19))(@effect/rpc@0.72.2(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(@effect/sql@0.48.0(@effect/experimental@0.57.4(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(@effect/workflow@0.13.0(@effect/experimental@0.57.4(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(@effect/platform@0.94.5(effect@3.19.19))(@effect/rpc@0.72.2(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(effect@3.19.19))(effect@3.19.19))(@effect/platform@0.94.5(effect@3.19.19))(@effect/rpc@0.72.2(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(@effect/sql@0.48.0(@effect/experimental@0.57.4(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(@effect/platform@0.94.5(effect@3.19.19))(effect@3.19.19))(effect@3.19.19)
+      '@matbee/libreoffice-converter':
+        specifier: ^2.5.0
+        version: 2.5.0
+      effect:
+        specifier: ^3.19.19
+        version: 3.19.19
+      effect-libreoffice:
+        specifier: workspace:*
+        version: link:../../packages/effect-libreoffice
+
+  packages/api:
+    dependencies:
+      '@effect/platform':
+        specifier: ^0.94.5
+        version: 0.94.5(effect@3.19.19)
+      effect:
+        specifier: ^3.19.19
+        version: 3.19.19
+      effect-libreoffice:
+        specifier: workspace:*
+        version: link:../effect-libreoffice
+
+  packages/effect-libreoffice:
+    dependencies:
+      '@effect/platform':
+        specifier: ^0.94.5
+        version: 0.94.5(effect@3.19.19)
+      '@matbee/libreoffice-converter':
+        specifier: ^2.5.0
+        version: 2.5.0
+      effect:
+        specifier: ^3.19.19
+        version: 3.19.19
+
 packages:
 
   '@babel/generator@8.0.0-rc.1':
