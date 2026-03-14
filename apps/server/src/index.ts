@@ -21,17 +21,18 @@ export const ConvertRoute = HttpApiBuilder.group(
         "convert",
         Effect.fn("ConvertRoute")(function* (req) {
           const fs = yield* FileSystem.FileSystem;
+
+          // cleanup uploaded file
+          yield* Effect.addFinalizer(() =>
+            fs.remove(req.payload.file.path).pipe(Effect.logError),
+          );
+
           const context = yield* Effect.context<
             | FileSystem.FileSystem
             | Path.Path
             | LibreOffice.LibreOffice
             | HttpClient.HttpClient
           >();
-
-          // cleanup uploaded file
-          yield* Effect.addFinalizer(() =>
-            fs.remove(req.payload.file.path).pipe(Effect.logError),
-          );
 
           return Conversion.fromFile(req.payload.file.path).pipe(
             Conversion.toStream({ format: req.payload.format }),
@@ -55,13 +56,15 @@ export const ConvertRoute = HttpApiBuilder.group(
               Conversion.toUrl(req.payload.outputUrl, {
                 format: req.payload.format,
               }),
-              Effect.provide(context),
-              Effect.mapError(
-                (error) =>
-                  new LibreOffice.LibreOfficeError({
-                    code: "UNKNOWN",
-                    message: String(error),
-                  }),
+              // something is very wrong here, Predicate.is tag is not working
+              // Effec.catchTag does not list the errors expected (PlatformError, HttpClientError, LibreOfficeError)
+              Effect.mapError((error) =>
+                error._tag === "LibreOfficeError"
+                  ? error
+                  : new LibreOffice.LibreOfficeError({
+                      code: "UNKNOWN",
+                      message: String(error),
+                    }),
               ),
             );
             return { status: "ok" as const };

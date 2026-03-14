@@ -4,7 +4,7 @@ import {
   type WorkerConverter,
 } from "@matbee/libreoffice-converter/server";
 import { Effect, Layer, Option, Pool, pipe } from "effect";
-import { LibreOffice, LibreOfficeError, TypeId } from "./libreoffice";
+import { LibreOffice, LibreOfficeError } from "./libreoffice";
 
 const mapError = Effect.mapError((e) => {
   const cause = e && typeof e === "object" && "error" in e ? e.error : e;
@@ -49,7 +49,6 @@ export const layer = Layer.scoped(
       );
 
     return LibreOffice.of({
-      [TypeId]: TypeId as TypeId,
       convert: (input, options, filename) =>
         use((c) => c.convert(input, options, filename)),
       getPageCount: (input, options) =>

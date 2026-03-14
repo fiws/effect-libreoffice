@@ -12,20 +12,7 @@ import type {
 } from "@matbee/libreoffice-converter/types";
 import { Context, Effect, Layer, type Option, Schema } from "effect";
 
-/**
- * @category type ids
- * @since 2.0.0
- */
-export const TypeId: TypeId = "~effect-libreoffice/LibreOffice";
-
-/**
- * @category type ids
- * @since 2.0.0
- */
-export type TypeId = "~effect-libreoffice/LibreOffice";
-
 export interface LibreOffice {
-  readonly [TypeId]: TypeId;
   /**
    * Convert a document to a different format
    *
@@ -195,7 +182,7 @@ export const layer = Layer.scoped(
       try: () => import("./wasm"),
       catch: (e) =>
         new LibreOfficeError({
-          code: "LOAD_FAILED",
+          code: "PEER_DEPENDENCY_IMPORT_FAILED",
           message:
             "Failed to load WASM converter. Make sure @matbee/libreoffice-converter is installed.",
           cause: e,
