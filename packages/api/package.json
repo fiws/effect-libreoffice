@@ -5,6 +5,7 @@
   "description": "API Schema for LibreOffice microservice.",
   "author": "Filip Weiss <me@fiws.net>",
   "license": "ISC",
+  "private": false,
   "exports": {
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
