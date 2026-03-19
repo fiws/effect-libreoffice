@@ -22,5 +22,8 @@
   "peerDependencies": {
     "@effect/platform": "^0.94.5",
     "effect": "^3.19.19"
+  },
+  "devDependencies": {
+    "@effect/platform-node": "^0.104.1"
   }
 }
