@@ -9,6 +9,9 @@
     ".": "./dist/index.mjs",
     "./package.json": "./package.json"
   },
+  "repository": {
+    "url": "https://github.com/fiws/effect-libreoffice"
+  },
   "files": [
     "dist",
     "src"
