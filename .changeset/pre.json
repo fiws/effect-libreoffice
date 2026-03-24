@@ -1,0 +1,12 @@
+{
+  "mode": "pre",
+  "tag": "next",
+  "initialVersions": {
+    "@effect-libreoffice/server": "2.0.0-dev",
+    "@effect-libreoffice/api": "2.0.0-dev",
+    "effect-libreoffice": "2.0.0-dev"
+  },
+  "changesets": [
+    "fifty-mice-flow"
+  ]
+}
