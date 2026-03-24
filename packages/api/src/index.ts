@@ -1,2 +1,2 @@
-export * from "./client.ts";
+export * as Client from "./client.ts";
 export * from "./domain.ts";
