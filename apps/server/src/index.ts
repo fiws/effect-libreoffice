@@ -2,14 +2,14 @@ import {
   FileSystem,
   HttpApiBuilder,
   HttpApiScalar,
-  type HttpClient,
+  HttpClient,
+  HttpClientRequest,
   HttpLayerRouter,
   HttpServerResponse,
-  type Path,
 } from "@effect/platform";
 import { LibreOfficeApi } from "@effect-libreoffice/api";
-import { Effect, Layer, Predicate, Stream } from "effect";
-import { Conversion, LibreOffice } from "effect-libreoffice";
+import { Effect, Layer, Stream } from "effect";
+import { LibreOffice } from "effect-libreoffice";
 
 // LibreOfficeApi route implementation
 export const ConvertRoute = HttpApiBuilder.group(
@@ -21,58 +21,87 @@ export const ConvertRoute = HttpApiBuilder.group(
         "convert",
         Effect.fn("ConvertRoute")(function* (req) {
           const fs = yield* FileSystem.FileSystem;
+          const libre = yield* LibreOffice.LibreOffice;
 
           // cleanup uploaded file
           yield* Effect.addFinalizer(() =>
             fs.remove(req.payload.file.path).pipe(Effect.logError),
           );
 
-          const context = yield* Effect.context<
-            | FileSystem.FileSystem
-            | Path.Path
-            | LibreOffice.LibreOffice
-            | HttpClient.HttpClient
-          >();
-
-          return Conversion.fromFile(req.payload.file.path).pipe(
-            Conversion.toStream({ format: req.payload.format }),
-            Stream.provideContext(context),
-            HttpServerResponse.stream,
+          const inputData = yield* fs.readFile(req.payload.file.path).pipe(
+            Effect.catchAll((error) =>
+              Effect.fail(
+                new LibreOffice.LibreOfficeError({
+                  code: "UNKNOWN",
+                  message: String(error),
+                }),
+              ),
+            ),
           );
+
+          const result = yield* libre.convert(inputData, {
+            outputFormat: req.payload.format as any,
+          });
+
+          return HttpServerResponse.stream(Stream.make(result.data));
         }),
       )
       .handle(
         "convertUrl",
         Effect.fn("ConvertUrlRoute")(function* (req) {
+          const httpClient = yield* HttpClient.HttpClient;
+          const libre = yield* LibreOffice.LibreOffice;
+
+          const request = HttpClientRequest.get(req.payload.inputUrl);
+          const response = yield* httpClient.execute(request).pipe(
+            Effect.catchAll((error) =>
+              Effect.fail(
+                new LibreOffice.LibreOfficeError({
+                  code: "UNKNOWN",
+                  message: String(error),
+                }),
+              ),
+            ),
+          );
+          const arrayBuffer = yield* response.arrayBuffer.pipe(
+            Effect.catchAll((error) =>
+              Effect.fail(
+                new LibreOffice.LibreOfficeError({
+                  code: "UNKNOWN",
+                  message: String(error),
+                }),
+              ),
+            ),
+          );
+          const inputData = new Uint8Array(arrayBuffer);
+
           if (req.payload.outputUrl) {
-            yield* Conversion.fromUrl(req.payload.inputUrl).pipe(
-              Conversion.toUrl(req.payload.outputUrl, {
-                format: req.payload.format,
-              }),
-              Effect.mapError((error) =>
-                Predicate.isTagged(error, "LibreOfficeError")
-                  ? error
-                  : new LibreOffice.LibreOfficeError({
-                      code: "UNKNOWN",
-                      message: String(error),
-                    }),
+            const result = yield* libre.convert(inputData, {
+              outputFormat: req.payload.format as any,
+            });
+
+            const putRequest = HttpClientRequest.put(
+              req.payload.outputUrl,
+            ).pipe(HttpClientRequest.bodyUint8Array(result.data));
+
+            yield* httpClient.execute(putRequest).pipe(
+              Effect.catchAll((error) =>
+                Effect.fail(
+                  new LibreOffice.LibreOfficeError({
+                    code: "UNKNOWN",
+                    message: String(error),
+                  }),
+                ),
               ),
             );
             return { status: "ok" as const };
           }
 
-          const context = yield* Effect.context<
-            | FileSystem.FileSystem
-            | Path.Path
-            | LibreOffice.LibreOffice
-            | HttpClient.HttpClient
-          >();
+          const result = yield* libre.convert(inputData, {
+            outputFormat: req.payload.format as any,
+          });
 
-          return Conversion.fromUrl(req.payload.inputUrl).pipe(
-            Conversion.toStream({ format: req.payload.format }),
-            Stream.provideContext(context),
-            HttpServerResponse.stream,
-          );
+          return HttpServerResponse.stream(Stream.make(result.data));
         }),
       ),
 );

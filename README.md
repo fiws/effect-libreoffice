@@ -26,39 +26,6 @@ pnpm add @matbee/libreoffice-converter
 
 ## Usage
 
-### Functional API (Pipeable)
-
-For a functional approach, use the `Conversion` module to define conversion pipelines.
-
-```typescript
-import { Conversion, LibreOffice } from "effect-libreoffice";
-import { NodeContext } from "@effect/platform-node";
-import { Effect, Layer } from "effect";
-
-// Create a conversion pipeline
-const program = Conversion.fromFile("input.docx").pipe(
-  Conversion.toFile("output.pdf", { format: "pdf" }),
-);
-
-// Provide the required layers
-const MainLayer = Layer.mergeAll(
-  LibreOffice.layer,
-  NodeContext.layer
-);
-
-program.pipe(
-  Effect.provide(MainLayer),
-  Effect.runPromise,
-);
-```
-
-The `Conversion` API supports a variety of sources and targets:
-
-- Sources: `fromFile(path)`, `fromBuffer(data)`, `fromStream(stream)`, `fromUrl(url)`
-- Targets: `toFile(path, options)`, `toStream(options)`, `toUrl(url, options)`
-
-*(Note: `fromUrl` and `toUrl` require an `HttpClient` layer like `FetchHttpClient.layer` or `NodeHttpClient.layerUndici` to be provided)*
-
 ### Direct Service Usage
 
 For lower-level access, you can use the `LibreOffice` service directly. This provides methods like `convert`, `getPageCount`, `getDocumentInfo`, and more.
