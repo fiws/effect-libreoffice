@@ -5,7 +5,7 @@
 - **Build**: `pnpm build` (Runs `tsdown`)
 - **Test (All)**: `pnpm test` (Runs `vitest run`)
 - **Test (Single)**: `pnpm test path/to/test.ts`
-- **Type Check**: `pnpm type-check` (Runs `tsc --noEmit`)
+- **Type Check**: `pnpm typecheck` (Runs `tsc --noEmit`)
 - **Lint & Format**: `pnpm biome check .` (or `pnpm biome check --write .` to fix)
 
 ## Code Style & Conventions
@@ -17,21 +17,13 @@
 ### Effect Ecosystem
 
 - **Generators**: Use `Effect.gen(function* () { ... })` for effectful computations.
-- **Piping**: Use `.pipe()` for chaining operations and providing layers/services.
+- **Piping**: Use `.pipe()` for chaining operations.
 - **Error Handling**:
   - Use `Data.TaggedError` for custom errors (e.g., `class MyError extends Data.TaggedError("MyError")<{ ... }> {}`).
   - Handle errors using `Effect.catchAll` or `Effect.catchTag`.
 - **Layers & Services**:
   - Define services using `Context.Tag`.
-  - Expose implementations as static `layer...` properties on the service class (e.g., `LibreOffice.layerCli`).
-  - Use `Effect.provide(Layer)` to inject dependencies.
 
-### Naming
-
-- **Services/Layers**: PascalCase (e.g., `LibreOffice`, `UnoClient`).
-- **Functions/Methods**: camelCase (e.g., `convertLocalFile`, `fromFile`).
-- **Types/Interfaces**: PascalCase.
-- **Effect Variables**: Often plain names, but ensure clarity (e.g., `fs` for FileSystem, `path` for Path).
 
 ### Testing
 

@@ -8,14 +8,14 @@
     "build:docker": "docker build -f apps/server/Dockerfile -t fiws/libre-convert .",
     "test": "vitest run",
     "bench": "vitest bench",
-    "type-check": "tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "generate-docs": "typedoc",
     "format-fix": "biome format --write"
   },
   "repository": {
     "url": "https://github.com/fiws/effect-libreoffice"
   },
-  "packageManager": "pnpm@10.32.1",
+  "packageManager": "pnpm@10.33.0",
   "devDependencies": {
     "@biomejs/biome": "2.4.8",
     "@changesets/cli": "^2.30.0",
