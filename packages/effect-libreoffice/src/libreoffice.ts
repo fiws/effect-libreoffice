@@ -6,11 +6,13 @@ import type {
   EditorSession,
   FullQualityPagePreview,
   FullQualityRenderOptions,
+  InputFormat,
   InputFormatOptions,
   PagePreview,
   RenderOptions,
 } from "@matbee/libreoffice-converter/types";
-import { Context, Effect, Layer, type Option, Schema } from "effect";
+import { Context, Effect, Layer, type Option } from "effect";
+import { LibreOfficeError } from "./error.ts";
 
 export interface LibreOffice {
   /**
@@ -87,7 +89,7 @@ export interface LibreOffice {
    */
   readonly getDocumentText: (
     input: Uint8Array,
-    inputFormat: string,
+    inputFormat: InputFormat,
   ) => Effect.Effect<Option.Option<string>, LibreOfficeError>;
 
   /**
@@ -97,7 +99,7 @@ export interface LibreOffice {
    */
   readonly getPageNames: (
     input: Uint8Array,
-    inputFormat: string,
+    inputFormat: InputFormat,
   ) => Effect.Effect<string[], LibreOfficeError>;
 
   /**
@@ -133,41 +135,6 @@ export interface LibreOffice {
 }
 
 /**
- * These are coming from the ConversionErrorCode enum from `@matbee/libreoffice-converter`
- * `PEER_DEPENDENCY_IMPORT_FAILED` is added by us
- *
- * @category errors
- * @since 2.0.0
- */
-export const ConversionErrorCode = Schema.Literal(
-  "UNKNOWN",
-  "INVALID_INPUT",
-  "UNSUPPORTED_FORMAT",
-  "CORRUPTED_DOCUMENT",
-  "PASSWORD_REQUIRED",
-  "WASM_NOT_INITIALIZED",
-  "CONVERSION_FAILED",
-  "LOAD_FAILED",
-
-  // added by us
-  "PEER_DEPENDENCY_IMPORT_FAILED",
-);
-
-/**
- * @category errors
- * @since 2.0.0
- */
-export class LibreOfficeError extends Schema.TaggedError<LibreOfficeError>()(
-  "LibreOfficeError",
-  {
-    code: ConversionErrorCode,
-    message: Schema.String,
-    details: Schema.optional(Schema.String),
-    cause: Schema.optional(Schema.Unknown),
-  },
-) {}
-
-/**
  * @category tags
  * @since 2.0.0
  */
@@ -179,7 +146,7 @@ export const layer = Layer.scoped(
   LibreOffice,
   Effect.gen(function* () {
     const { layer } = yield* Effect.tryPromise({
-      try: () => import("./wasm"),
+      try: () => import("./wasm.ts"),
       catch: (e) =>
         new LibreOfficeError({
           code: "PEER_DEPENDENCY_IMPORT_FAILED",

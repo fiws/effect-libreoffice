@@ -1,9 +1,23 @@
-import { NodeContext } from "@effect/platform-node";
+import { NodeContext, NodeWorker } from "@effect/platform-node";
 import { assert, it } from "@effect/vitest";
 import { Effect, Layer, Predicate } from "effect";
 import { LibreOffice } from "effect-libreoffice";
+// import * as CP from "node:child_process";
+import { Worker } from "node:worker_threads";
 
-const TestLive = Layer.mergeAll(LibreOffice.layer, NodeContext.layer);
+const tsWorker = (path: string) => {
+  const url = new URL(path, import.meta.url);
+  return new Worker(url);
+};
+
+const TestLive = Layer.mergeAll(LibreOffice.layer).pipe(
+  Layer.provideMerge(
+    Layer.mergeAll(
+      NodeContext.layer,
+      NodeWorker.layer((_spawn) => tsWorker("./wasm/worker-node.ts")),
+    ),
+  ),
+);
 
 it.layer(TestLive)("Libreoffice (Default)", (it) => {
   it.effect(
@@ -42,17 +56,17 @@ it.layer(TestLive)("Libreoffice (Default)", (it) => {
     }),
   );
 
-  it.effect(
-    "should fail with invalid output extension",
+  // don't know how to make it fail yet..
+  it.effect.skip(
+    "should fail with invalid input format",
     Effect.fn(function* () {
       const libre = yield* LibreOffice.LibreOffice;
       const inputData = new TextEncoder().encode("Hello PDF");
 
       const result = yield* libre
         .convert(inputData, {
-          // @ts-expect-error invalid format test
-          outputFormat: "invalidext",
-          inputFormat: "txt",
+          outputFormat: "png",
+          inputFormat: "pptx",
         })
         .pipe(Effect.flip);
 

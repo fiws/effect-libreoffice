@@ -1,4 +1,1 @@
-import type { KnownSupportedOutputFormat, OutputPath, Reason } from "./shared";
-
-export * as LibreOffice from "./libreoffice";
-export type { KnownSupportedOutputFormat, OutputPath, Reason };
+export * as LibreOffice from "./libreoffice.ts";

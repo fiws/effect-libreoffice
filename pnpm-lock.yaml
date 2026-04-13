@@ -85,8 +85,8 @@ importers:
         specifier: ^0.94.5
         version: 0.94.5(effect@3.20.0)
       '@matbee/libreoffice-converter':
-        specifier: ^2.5.1
-        version: 2.5.1
+        specifier: ^2.6.0
+        version: 2.6.0
       effect:
         specifier: ^3.19.19
         version: 3.20.0
@@ -512,6 +512,18 @@ packages:
     peerDependencies:
       sharp: '>=0.32.0'
     peerDependenciesMeta:
+      sharp:
+        optional: true
+
+  '@matbee/libreoffice-converter@2.6.0':
+    resolution: {integrity: sha512-Xoxp1/KGKt3tfDSDHZQJJaJu6XRiSTGBN0PaaN9XfZDlzweVZkChgipN2PujnwJshgGGuejP82PF3wQqC1ntxg==}
+    engines: {node: '>=18.0.0'}
+    peerDependencies:
+      jszip: '>=3.0.0'
+      sharp: '>=0.32.0'
+    peerDependenciesMeta:
+      jszip:
+        optional: true
       sharp:
         optional: true
 
@@ -2091,6 +2103,10 @@ snapshots:
       read-yaml-file: 1.1.0
 
   '@matbee/libreoffice-converter@2.5.1':
+    dependencies:
+      zod: 4.3.6
+
+  '@matbee/libreoffice-converter@2.6.0':
     dependencies:
       zod: 4.3.6
 

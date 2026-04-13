@@ -10,6 +10,7 @@ export default defineConfig({
       "@effect-libreoffice/api": "packages/api/src/index.ts",
     },
     testTimeout: 60_000,
+    hookTimeout: 30_000,
     // ci is slow
     fileParallelism: !process.env.CI,
     sequence: {
