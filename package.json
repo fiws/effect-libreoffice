@@ -10,7 +10,8 @@
     "bench": "vitest bench",
     "typecheck": "tsc --noEmit",
     "generate-docs": "typedoc",
-    "format-fix": "biome format --write",
+    "check": "biome check",
+    "check:fix": "biome check --write",
     "prepare": "effect-language-service patch"
   },
   "repository": {

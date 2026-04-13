@@ -8,7 +8,7 @@ import {
   NodeRuntime,
 } from "@effect/platform-node";
 import { Config, Effect, Layer, Logger } from "effect";
-import { LibreOffice } from "effect-libreoffice";
+import { LibreOfficeNode } from "effect-libreoffice/node";
 import { AllRoutes } from "./index.ts";
 
 const ServerLive = Layer.unwrapEffect(
@@ -26,7 +26,7 @@ const ServerLive = Layer.unwrapEffect(
 // To start the server, we use `HttpLayerRouter.serve` with the routes layer
 HttpLayerRouter.serve(AllRoutes).pipe(
   Layer.provide(ServerLive),
-  Layer.provide(LibreOffice.layer),
+  Layer.provide(LibreOfficeNode.layer),
   Layer.provide(NodeContext.layer),
   Layer.provide(NodeHttpClient.layerUndici),
   Layer.launch,

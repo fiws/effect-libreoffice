@@ -31,32 +31,32 @@ import { NodeContext } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
 import { FileSystem } from "@effect/platform";
 import { LibreOffice } from "effect-libreoffice";
+import { LibreOfficeNode } from "effect-libreoffice/node";
 
 const program = Effect.gen(function* () {
   const fs = yield* FileSystem.FileSystem;
   const libre = yield* LibreOffice.LibreOffice;
-  
+
   // Read the input document into a Uint8Array
   const inputData = yield* fs.readFile("input.docx");
-  
+
   // Convert it using the LibreOffice engine
   const result = yield* libre.convert(inputData, {
     inputFormat: "docx",
     outputFormat: "pdf",
   });
-  
+
   // Write the resulting Uint8Array to disk
   yield* fs.writeFile("output.pdf", result.data);
-  
+
   // You can also access other document utilities:
-  const pageCount = yield* libre.getPageCount(inputData, { inputFormat: "docx" });
+  const pageCount = yield* libre.getPageCount(inputData, {
+    inputFormat: "docx",
+  });
   console.log(`The document has ${pageCount} pages.`);
 });
 
-const MainLayer = Layer.mergeAll(
-  LibreOffice.layer,
-  NodeContext.layer
-);
+const MainLayer = Layer.mergeAll(LibreOfficeNode.layer, NodeContext.layer);
 
 program.pipe(Effect.provide(MainLayer), Effect.runPromise);
 ```
@@ -73,4 +73,3 @@ The `LibreOffice.LibreOffice` service exposes the following WASM-based operation
 - `renderPageFullQuality`: Render a page at full quality natively
 - `getDocumentText`: Extract text content from a document
 - `getPageNames`: Get page or slide names from a document
-- `openDocument` / `editorOperation` / `closeDocument`: Session-based document editing
