@@ -13,11 +13,15 @@ import { LibreOffice } from "effect-libreoffice";
 // #MARK: Domain Schemas
 export const TargetFormat = Schema.Literal(
   "pdf",
-  "html",
   "docx",
-  "txt",
-  "png",
+  "doc",
+  "odt",
+  "html",
+  "rtf",
+  "epub",
   "jpg",
+  "png",
+  "txt",
 ).annotations({
   identifier: "TargetFormat",
   description: "The target format to convert the file to.",
