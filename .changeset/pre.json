@@ -6,7 +6,5 @@
     "@effect-libreoffice/api": "2.0.0-dev",
     "effect-libreoffice": "2.0.0-dev"
   },
-  "changesets": [
-    "fifty-mice-flow"
-  ]
+  "changesets": ["fifty-mice-flow"]
 }

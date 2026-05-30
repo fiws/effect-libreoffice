@@ -40,7 +40,7 @@ export const ConvertRoute = HttpApiBuilder.group(
           );
 
           const result = yield* libre.convert(inputData, {
-            outputFormat: req.payload.format as any,
+            outputFormat: req.payload.format,
           });
 
           return HttpServerResponse.stream(Stream.make(result.data));
@@ -77,7 +77,7 @@ export const ConvertRoute = HttpApiBuilder.group(
 
           if (req.payload.outputUrl) {
             const result = yield* libre.convert(inputData, {
-              outputFormat: req.payload.format as any,
+              outputFormat: req.payload.format,
             });
 
             const putRequest = HttpClientRequest.put(
@@ -98,7 +98,7 @@ export const ConvertRoute = HttpApiBuilder.group(
           }
 
           const result = yield* libre.convert(inputData, {
-            outputFormat: req.payload.format as any,
+            outputFormat: req.payload.format,
           });
 
           return HttpServerResponse.stream(Stream.make(result.data));
