@@ -32,7 +32,7 @@ jobs:
         run: pnpm biome ci .
 
       - name: Type check
-        run: pnpm type-check
+        run: pnpm typecheck
 
       - name: Test
         run: pnpm test
