@@ -30,6 +30,6 @@
     }
   },
   "devDependencies": {
-    "@effect/platform-node": "^0.104.1"
+    "@effect/platform-node": "^0.107.0"
   }
 }
