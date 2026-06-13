@@ -26,10 +26,6 @@ pnpm add @matbee/libreoffice-converter
 
 ## Usage
 
-### Direct Service Usage
-
-For lower-level access, you can use the `LibreOffice` service directly. This provides methods like `convert`, `getPageCount`, `getDocumentInfo`, and more.
-
 ```typescript
 import { NodeContext } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
