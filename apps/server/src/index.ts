@@ -29,13 +29,12 @@ export const ConvertRoute = HttpApiBuilder.group(
           );
 
           const inputData = yield* fs.readFile(req.payload.file.path).pipe(
-            Effect.catchAll((error) =>
-              Effect.fail(
+            Effect.mapError(
+              (error) =>
                 new LibreOffice.LibreOfficeError({
                   code: "UNKNOWN",
                   message: String(error),
                 }),
-              ),
             ),
           );
 
@@ -54,23 +53,21 @@ export const ConvertRoute = HttpApiBuilder.group(
 
           const request = HttpClientRequest.get(req.payload.inputUrl);
           const response = yield* httpClient.execute(request).pipe(
-            Effect.catchAll((error) =>
-              Effect.fail(
+            Effect.mapError(
+              (error) =>
                 new LibreOffice.LibreOfficeError({
                   code: "UNKNOWN",
                   message: String(error),
                 }),
-              ),
             ),
           );
           const arrayBuffer = yield* response.arrayBuffer.pipe(
-            Effect.catchAll((error) =>
-              Effect.fail(
+            Effect.mapError(
+              (error) =>
                 new LibreOffice.LibreOfficeError({
                   code: "UNKNOWN",
                   message: String(error),
                 }),
-              ),
             ),
           );
           const inputData = new Uint8Array(arrayBuffer);
@@ -85,13 +82,12 @@ export const ConvertRoute = HttpApiBuilder.group(
             ).pipe(HttpClientRequest.bodyUint8Array(result.data));
 
             yield* httpClient.execute(putRequest).pipe(
-              Effect.catchAll((error) =>
-                Effect.fail(
+              Effect.mapError(
+                (error) =>
                   new LibreOffice.LibreOfficeError({
                     code: "UNKNOWN",
                     message: String(error),
                   }),
-                ),
               ),
             );
             return { status: "ok" as const };

@@ -1,4 +1,5 @@
 {
+  "$schema": "./node_modules/@effect/language-service/schema.json",
   "compilerOptions": {
     "target": "esnext",
     "lib": ["es2023", "dom"],
@@ -17,13 +18,13 @@
     "allowImportingTsExtensions": true,
     "paths": {
       "effect-libreoffice": ["./packages/effect-libreoffice/src/index.ts"],
-      "@effect-libreoffice/api": ["./packages/api/src/index.ts"]
+      "@effect-libreoffice/api": ["./packages/api/src/index.ts"],
     },
     "plugins": [
       {
-        "name": "@effect/language-service"
-      }
-    ]
+        "name": "@effect/language-service",
+      },
+    ],
   },
-  "include": ["packages/*/src", "apps/*/src"]
+  "include": ["packages/*/src", "apps/*/src"],
 }

@@ -10,7 +10,8 @@
     "bench": "vitest bench",
     "typecheck": "tsc --noEmit",
     "generate-docs": "typedoc",
-    "format-fix": "biome format --write"
+    "format-fix": "biome format --write",
+    "prepare": "effect-language-service patch"
   },
   "repository": {
     "url": "https://github.com/fiws/effect-libreoffice"
