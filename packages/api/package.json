@@ -24,7 +24,7 @@
     "effect-libreoffice": "workspace:*"
   },
   "peerDependencies": {
-    "@effect/platform": "^0.94.5",
+    "@effect/platform": "0.x.x",
     "effect": "^3.19.19"
   },
   "devDependencies": {
