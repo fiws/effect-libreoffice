@@ -1,3 +1,5 @@
+
+
 # effect-libreoffice
 
 [![NPM Version](https://img.shields.io/npm/v/effect-libreoffice)](https://www.npmjs.com/package/effect-libreoffice)
@@ -12,10 +14,10 @@ Starting with version `2.x.x`, `effect-libreoffice` executes conversions directl
 
 ### Installation
 
-Install the library along with its peer dependencies:
+Install the library and the packages needed to run the Node.js example:
 
 ```bash
-pnpm add effect-libreoffice effect @effect/platform
+pnpm add effect-libreoffice effect @effect/platform @effect/platform-node
 ```
 
 You must also install the WebAssembly converter package:
