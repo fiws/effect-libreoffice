@@ -23,6 +23,9 @@ importers:
       '@types/node':
         specifier: ^25.9.3
         version: 25.9.3
+      pkg-pr-new:
+        specifier: ^0.0.88
+        version: 0.0.88
       tsdown:
         specifier: ^0.22.2
         version: 0.22.14(tsx@4.22.4)(typescript@6.0.3)(unrun@0.2.39)
@@ -1563,6 +1566,10 @@ packages:
   pify@4.0.1:
     resolution: {integrity: sha512-uB80kBFb/tfd68bVleG9T5GGsGPjJrLAUpR5PZIrhBnIaRTQRjqdJSsIKkOP6OAIFbj7GOrcudc5pNjZ+geV2g==}
     engines: {node: '>=6'}
+
+  pkg-pr-new@0.0.88:
+    resolution: {integrity: sha512-Xc6PMJ2gher0WZP+rtjefFk26hIb7V1PTLL30bmy1Z2vsRmSvqiss7Ag1XUdyplTGYzIlFNJp4L3vMNmK44N6g==}
+    hasBin: true
 
   postcss@8.5.15:
     resolution: {integrity: sha512-FfR8sjd4em2T6fb3I2MwAJU7HWVMr9zba+enmQeeWFfCbm+UOC/0X4DS8XtpUTMwWMGbjKYP7xjfNekzyGmB3A==}
@@ -3114,6 +3121,8 @@ snapshots:
   picomatch@4.0.5: {}
 
   pify@4.0.1: {}
+
+  pkg-pr-new@0.0.88: {}
 
   postcss@8.5.15:
     dependencies:
