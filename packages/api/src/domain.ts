@@ -1,96 +1,88 @@
+import { Effect, Schema } from "effect";
+import { Multipart } from "effect/unstable/http";
 import {
   HttpApi,
   HttpApiEndpoint,
   HttpApiGroup,
   HttpApiSchema,
-  Multipart,
   OpenApi,
-} from "@effect/platform";
-import { Schema } from "effect";
-import { constant } from "effect/Function";
+} from "effect/unstable/httpapi";
 import { LibreOffice } from "effect-libreoffice";
 
 // #MARK: Domain Schemas
-export const TargetFormat = Schema.Literal(
+export const TargetFormat = Schema.Literals([
   "pdf",
   "html",
   "docx",
   "txt",
   "png",
   "jpg",
-).annotations({
+]).annotate({
   identifier: "TargetFormat",
   description: "The target format to convert the file to.",
   examples: ["pdf"],
 });
 
 export const ConvertUrlPayload = Schema.Struct({
-  inputUrl: Schema.String.pipe(Schema.nonEmptyString()),
-  outputUrl: Schema.optional(Schema.String.pipe(Schema.nonEmptyString())),
-  format: Schema.optionalWith(TargetFormat, {
-    default: constant("pdf"),
-  }),
+  inputUrl: Schema.String.pipe(Schema.check(Schema.isNonEmpty())),
+  outputUrl: Schema.optional(
+    Schema.String.pipe(Schema.check(Schema.isNonEmpty())),
+  ),
+  format: TargetFormat.pipe(
+    Schema.withDecodingDefaultTypeKey(Effect.succeed("pdf")),
+  ),
 });
 
 // #MARK: API Groups
 export const ConversionApi = HttpApiGroup.make("conversion")
   .add(
-    HttpApiEndpoint.post("convert", "/upload")
-      .setPayload(
-        HttpApiSchema.Multipart(
-          Schema.Struct({
-            file: Multipart.SingleFileSchema,
-            format: Schema.optionalWith(TargetFormat, {
-              default: constant("pdf"),
-            }).annotations({
-              description:
-                "Target format for the conversion. Defaults to 'pdf'.",
-            }),
+    HttpApiEndpoint.post("convert", "/upload", {
+      payload: Schema.Struct({
+        file: Multipart.SingleFileSchema,
+        format: TargetFormat.pipe(
+          Schema.withDecodingDefaultTypeKey(Effect.succeed("pdf")),
+          Schema.annotate({
+            description: "Target format for the conversion. Defaults to 'pdf'.",
           }),
         ),
-      )
-      .addSuccess(
-        Schema.Uint8ArrayFromSelf.pipe(
-          HttpApiSchema.withEncoding({
-            kind: "Uint8Array",
-            contentType: "application/octet-stream",
-          }),
-        ).annotations({
-          description: "A stream of the converted file.",
+      }).pipe(HttpApiSchema.asMultipart()),
+      success: Schema.Uint8Array.pipe(
+        HttpApiSchema.asUint8Array({
+          contentType: "application/octet-stream",
         }),
-      )
-      .addError(LibreOffice.LibreOfficeError)
-      .annotate(
-        OpenApi.Description,
-        "Convert a local file to another format using LibreOffice.",
+        Schema.annotate({
+          description: "The converted file.",
+        }),
       ),
+      error: LibreOffice.LibreOfficeError,
+    }).annotate(
+      OpenApi.Description,
+      "Convert a local file to another format using LibreOffice.",
+    ),
   )
   .add(
-    HttpApiEndpoint.post("convertUrl", "/url")
-      .setPayload(ConvertUrlPayload)
-      .addSuccess(
-        Schema.Union(
-          Schema.Struct({ status: Schema.Literal("ok") }),
-          Schema.Uint8ArrayFromSelf.pipe(
-            HttpApiSchema.withEncoding({
-              kind: "Uint8Array",
-              contentType: "application/octet-stream",
-            }),
-          ),
-        ).annotations({
-          description:
-            "A stream of the converted file if no outputUrl provided, or { status: 'ok' } if outputUrl was provided.",
-        }),
-      )
-      .addError(LibreOffice.LibreOfficeError)
-      .annotate(OpenApi.Description, "Convert a document from a URL."),
+    HttpApiEndpoint.post("convertUrl", "/url", {
+      payload: ConvertUrlPayload,
+      success: [
+        Schema.Struct({ status: Schema.Literal("ok") }),
+        Schema.Uint8Array.pipe(
+          HttpApiSchema.asUint8Array({
+            contentType: "application/octet-stream",
+          }),
+          Schema.annotate({
+            description: "The converted file when outputUrl is omitted.",
+          }),
+        ),
+      ],
+      error: LibreOffice.LibreOfficeError,
+    }).annotate(OpenApi.Description, "Convert a document from a URL."),
   )
   .prefix("/conversion");
 
 export const ManagementApi = HttpApiGroup.make("management").add(
-  HttpApiEndpoint.get("health", "/health")
-    .addSuccess(Schema.Struct({ status: Schema.Literal("ok") }))
-    .annotate(OpenApi.Description, "Check the service health status."),
+  HttpApiEndpoint.get("health", "/health", {
+    success: Schema.Struct({ status: Schema.Literal("ok") }),
+  }).annotate(OpenApi.Description, "Check the service health status."),
 );
 
 // #MARK: Main API

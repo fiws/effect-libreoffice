@@ -6,7 +6,7 @@ import { Schema } from "effect";
  * @category errors
  * @since 2.0.0
  */
-export const ConversionErrorCode = Schema.Literal(
+export const ConversionErrorCode = Schema.Literals([
   "UNKNOWN",
   "INVALID_INPUT",
   "UNSUPPORTED_FORMAT",
@@ -15,7 +15,7 @@ export const ConversionErrorCode = Schema.Literal(
   "WASM_NOT_INITIALIZED",
   "CONVERSION_FAILED",
   "LOAD_FAILED",
-);
+]);
 
 /**
  * @category errors
