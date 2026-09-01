@@ -12,7 +12,7 @@
 
 ### General
 
-- **Strict TypeScript**: The project uses strict TypeScript settings. Never use "any". Never use "as" casting unless it is absolutely necessary.
+- **Strict TypeScript**: The project uses strict TypeScript settings. NEVER use "any". NEVER use "as" casting unless it is absolutely necessary.
 
 ### Effect Ecosystem
 

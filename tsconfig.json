@@ -18,6 +18,7 @@
     "allowImportingTsExtensions": true,
     "paths": {
       "effect-libreoffice": ["./packages/effect-libreoffice/src/index.ts"],
+      "effect-libreoffice/node": ["./packages/effect-libreoffice/src/node.ts"],
       "@effect-libreoffice/api": ["./packages/api/src/index.ts"]
     },
     "plugins": [
