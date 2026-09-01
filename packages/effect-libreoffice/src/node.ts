@@ -4,7 +4,14 @@ import { Layer } from "effect";
 import { layer } from "./wasm/layer";
 
 function nodeWorker() {
-  return new Worker(new URL("./wasm/worker-node.ts", import.meta.url));
+  return new Worker(
+    new URL(
+      import.meta.url.endsWith(".ts")
+        ? "./wasm/worker-node.ts"
+        : "./wasm/worker-node.mjs",
+      import.meta.url,
+    ),
+  );
 }
 
 /**

@@ -6,6 +6,8 @@ RUN corepack enable
 FROM base AS builder
 WORKDIR /app
 COPY . .
+RUN pnpm install --frozen-lockfile
+RUN pnpm build
 RUN pnpm deploy --filter @effect-libreoffice/server --prod --legacy /app/out
 
 FROM gcr.io/distroless/nodejs24-debian13:nonroot AS runner

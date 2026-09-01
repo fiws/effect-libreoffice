@@ -8,6 +8,7 @@
   "exports": {
     ".": "./dist/index.mjs",
     "./node": "./dist/node.mjs",
+    "./wasm/worker-node": "./dist/wasm/worker-node.mjs",
     "./package.json": "./package.json"
   },
   "repository": {
