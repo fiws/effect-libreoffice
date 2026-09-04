@@ -22,18 +22,20 @@
     "build": "tsdown"
   },
   "peerDependencies": {
-    "@effect/platform": "0.x.x",
+    "@effect/platform-node": "^4.0.0-rc.112",
     "@matbee/libreoffice-converter": "^2.5.1",
-    "effect": "^3.19.19"
+    "effect": "^4.0.0-rc.112"
   },
   "peerDependenciesMeta": {
+    "@effect/platform-node": {
+      "optional": true
+    },
     "@matbee/libreoffice-converter": {
       "optional": true
     }
   },
   "devDependencies": {
-    "@effect/platform": "^0.96.1",
-    "@effect/platform-node": "^0.107.0",
-    "effect": "^3.21.3"
+    "@effect/platform-node": "4.0.0-rc.112",
+    "effect": "4.0.0-rc.112"
   }
 }

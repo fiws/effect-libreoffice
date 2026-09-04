@@ -1,49 +1,25 @@
-import { Worker } from "@effect/platform";
-import type { WorkerError } from "@effect/platform/WorkerError";
-import { Effect, Layer, Option, type ParseResult } from "effect";
+import { Effect, Layer, Option } from "effect";
+import { RpcClient } from "effect/unstable/rpc";
+import type { RpcClientError } from "effect/unstable/rpc/RpcClientError";
 import { LibreOfficeError } from "../error.ts";
 import { LibreOffice } from "../libreoffice.ts";
-import {
-  ConvertRequest,
-  GetDocumentInfoRequest,
-  GetDocumentTextRequest,
-  GetPageCountRequest,
-  GetPageNamesRequest,
-  type LibreOfficeRequest,
-  RenderPageFullQualityRequest,
-  RenderPagePreviewsRequest,
-  RenderPageRequest,
-} from "./schema.ts";
+import { LibreOfficeRpcs } from "./schema.ts";
 
-export const layer = Layer.scoped(
+const clientLayer = Layer.effect(
   LibreOffice,
   Effect.gen(function* () {
-    const pool = yield* Worker.makePoolSerialized<LibreOfficeRequest>({
-      size: 1,
-    });
+    const client = yield* RpcClient.make(LibreOfficeRpcs);
 
-    const run = <R extends LibreOfficeRequest>(request: R) =>
-      pool.executeEffect(request);
-
-    const mapErrors = <A, E extends Error>(
-      effect: Effect.Effect<A, WorkerError | ParseResult.ParseError | E>,
+    const mapErrors = <A>(
+      effect: Effect.Effect<A, LibreOfficeError | RpcClientError>,
     ) =>
       effect.pipe(
-        Effect.catchTag("WorkerError", (error) =>
+        Effect.catchTag("RpcClientError", (error) =>
           Effect.fail(
             new LibreOfficeError({
               message: error.message,
               code: "UNKNOWN",
-              cause: error.cause,
-            }),
-          ),
-        ),
-        Effect.catchTag("ParseError", (error) =>
-          Effect.fail(
-            new LibreOfficeError({
-              message: error.message,
-              code: "UNKNOWN",
-              cause: error.cause,
+              cause: error,
             }),
           ),
         ),
@@ -51,35 +27,38 @@ export const layer = Layer.scoped(
 
     return LibreOffice.of({
       convert: (input, options, filename) =>
-        run(new ConvertRequest({ input, options, filename })).pipe(mapErrors),
+        client.Convert({ input, options, filename }).pipe(mapErrors),
       getPageCount: (input, options) =>
-        run(new GetPageCountRequest({ input, options })).pipe(mapErrors),
+        client.GetPageCount({ input, options }).pipe(mapErrors),
       getDocumentInfo: (input, options) =>
-        run(new GetDocumentInfoRequest({ input, options })).pipe(mapErrors),
+        client.GetDocumentInfo({ input, options }).pipe(mapErrors),
       renderPage: (input, options, pageIndex, width, height) =>
-        run(
-          new RenderPageRequest({ input, options, pageIndex, width, height }),
-        ).pipe(mapErrors),
+        client
+          .RenderPage({ input, options, pageIndex, width, height })
+          .pipe(mapErrors),
       renderPagePreviews: (input, options, renderOptions) =>
-        run(
-          new RenderPagePreviewsRequest({ input, options, renderOptions }),
-        ).pipe(mapErrors),
+        client
+          .RenderPagePreviews({ input, options, renderOptions })
+          .pipe(mapErrors),
       renderPageFullQuality: (input, options, pageIndex, renderOptions) =>
-        run(
-          new RenderPageFullQualityRequest({
+        client
+          .RenderPageFullQuality({
             input,
             options,
             pageIndex,
             renderOptions,
-          }),
-        ).pipe(mapErrors),
+          })
+          .pipe(mapErrors),
       getDocumentText: (input, inputFormat) =>
-        run(new GetDocumentTextRequest({ input, inputFormat })).pipe(
-          Effect.map(Option.fromNullable),
-          mapErrors,
-        ),
+        client
+          .GetDocumentText({ input, inputFormat })
+          .pipe(Effect.map(Option.fromNullishOr), mapErrors),
       getPageNames: (input, inputFormat) =>
-        run(new GetPageNamesRequest({ input, inputFormat })).pipe(mapErrors),
+        client.GetPageNames({ input, inputFormat }).pipe(mapErrors),
     });
   }),
+);
+
+export const layer = clientLayer.pipe(
+  Layer.provide(RpcClient.layerProtocolWorker({ size: 1 })),
 );

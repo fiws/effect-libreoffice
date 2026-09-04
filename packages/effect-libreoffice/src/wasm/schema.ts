@@ -1,7 +1,8 @@
 import { Schema } from "effect";
+import { Rpc, RpcGroup } from "effect/unstable/rpc";
 import { LibreOfficeError } from "../error.ts";
 
-export const InputFormat = Schema.Literal(
+export const InputFormat = Schema.Literals([
   "doc",
   "docx",
   "xls",
@@ -21,9 +22,9 @@ export const InputFormat = Schema.Literal(
   "xml",
   "epub",
   "pdf",
-);
+]);
 
-export const OutputFormat = Schema.Literal(
+export const OutputFormat = Schema.Literals([
   "pdf",
   "docx",
   "doc",
@@ -41,7 +42,7 @@ export const OutputFormat = Schema.Literal(
   "png",
   "jpg",
   "svg",
-);
+]);
 
 export const ConversionOptionsSchema = Schema.Struct({
   inputFormat: InputFormat.pipe(Schema.optional),
@@ -50,7 +51,7 @@ export const ConversionOptionsSchema = Schema.Struct({
   password: Schema.optional(Schema.String),
   pdf: Schema.optional(
     Schema.Struct({
-      pdfaLevel: Schema.Literal("PDF/A-1b", "PDF/A-2b", "PDF/A-3b").pipe(
+      pdfaLevel: Schema.Literals(["PDF/A-1b", "PDF/A-2b", "PDF/A-3b"]).pipe(
         Schema.optional,
       ),
       quality: Schema.optional(Schema.Number),
@@ -106,80 +107,64 @@ export const FullQualityRenderOptionsSchema = Schema.Struct({
   editMode: Schema.optional(Schema.Boolean),
 });
 
-export const FullQualityPagePreviewSchema = Schema.extend(
-  PagePreviewSchema,
-  Schema.Struct({ dpi: Schema.Number }),
+export const FullQualityPagePreviewSchema = PagePreviewSchema.pipe(
+  Schema.fieldsAssign({ dpi: Schema.Number }),
 );
 
-export class ConvertRequest extends Schema.TaggedRequest<ConvertRequest>()(
-  "Convert",
-  {
-    failure: LibreOfficeError,
-    success: ConversionResultSchema,
-    payload: {
-      input: Schema.Uint8Array,
-      options: ConversionOptionsSchema,
-      filename: Schema.optional(Schema.String),
-    },
+export class ConvertRequest extends Rpc.make("Convert", {
+  error: LibreOfficeError,
+  success: ConversionResultSchema,
+  payload: {
+    input: Schema.Uint8Array,
+    options: ConversionOptionsSchema,
+    filename: Schema.optional(Schema.String),
   },
-) {}
+}) {}
 
-export class GetPageCountRequest extends Schema.TaggedRequest<GetPageCountRequest>()(
-  "GetPageCount",
-  {
-    failure: LibreOfficeError,
-    success: Schema.Number,
-    payload: {
-      input: Schema.Uint8Array,
-      options: InputFormatOptionsSchema,
-    },
+export class GetPageCountRequest extends Rpc.make("GetPageCount", {
+  error: LibreOfficeError,
+  success: Schema.Number,
+  payload: {
+    input: Schema.Uint8Array,
+    options: InputFormatOptionsSchema,
   },
-) {}
+}) {}
 
-export class GetDocumentInfoRequest extends Schema.TaggedRequest<GetDocumentInfoRequest>()(
-  "GetDocumentInfo",
-  {
-    failure: LibreOfficeError,
-    success: DocumentInfoSchema,
-    payload: {
-      input: Schema.Uint8Array,
-      options: InputFormatOptionsSchema,
-    },
+export class GetDocumentInfoRequest extends Rpc.make("GetDocumentInfo", {
+  error: LibreOfficeError,
+  success: DocumentInfoSchema,
+  payload: {
+    input: Schema.Uint8Array,
+    options: InputFormatOptionsSchema,
   },
-) {}
+}) {}
 
-export class RenderPageRequest extends Schema.TaggedRequest<RenderPageRequest>()(
-  "RenderPage",
-  {
-    failure: LibreOfficeError,
-    success: PagePreviewSchema,
-    payload: {
-      input: Schema.Uint8Array,
-      options: InputFormatOptionsSchema,
-      pageIndex: Schema.Number,
-      width: Schema.Number,
-      height: Schema.optional(Schema.Number),
-    },
+export class RenderPageRequest extends Rpc.make("RenderPage", {
+  error: LibreOfficeError,
+  success: PagePreviewSchema,
+  payload: {
+    input: Schema.Uint8Array,
+    options: InputFormatOptionsSchema,
+    pageIndex: Schema.Number,
+    width: Schema.Number,
+    height: Schema.optional(Schema.Number),
   },
-) {}
+}) {}
 
-export class RenderPagePreviewsRequest extends Schema.TaggedRequest<RenderPagePreviewsRequest>()(
-  "RenderPagePreviews",
-  {
-    failure: LibreOfficeError,
-    success: Schema.mutable(Schema.Array(PagePreviewSchema)),
-    payload: {
-      input: Schema.Uint8Array,
-      options: InputFormatOptionsSchema,
-      renderOptions: Schema.optional(RenderOptionsSchema),
-    },
+export class RenderPagePreviewsRequest extends Rpc.make("RenderPagePreviews", {
+  error: LibreOfficeError,
+  success: Schema.mutable(Schema.Array(PagePreviewSchema)),
+  payload: {
+    input: Schema.Uint8Array,
+    options: InputFormatOptionsSchema,
+    renderOptions: Schema.optional(RenderOptionsSchema),
   },
-) {}
+}) {}
 
-export class RenderPageFullQualityRequest extends Schema.TaggedRequest<RenderPageFullQualityRequest>()(
+export class RenderPageFullQualityRequest extends Rpc.make(
   "RenderPageFullQuality",
   {
-    failure: LibreOfficeError,
+    error: LibreOfficeError,
     success: FullQualityPagePreviewSchema,
     payload: {
       input: Schema.Uint8Array,
@@ -190,31 +175,25 @@ export class RenderPageFullQualityRequest extends Schema.TaggedRequest<RenderPag
   },
 ) {}
 
-export class GetDocumentTextRequest extends Schema.TaggedRequest<GetDocumentTextRequest>()(
-  "GetDocumentText",
-  {
-    failure: LibreOfficeError,
-    success: Schema.NullOr(Schema.String),
-    payload: {
-      input: Schema.Uint8Array,
-      inputFormat: InputFormat,
-    },
+export class GetDocumentTextRequest extends Rpc.make("GetDocumentText", {
+  error: LibreOfficeError,
+  success: Schema.NullOr(Schema.String),
+  payload: {
+    input: Schema.Uint8Array,
+    inputFormat: InputFormat,
   },
-) {}
+}) {}
 
-export class GetPageNamesRequest extends Schema.TaggedRequest<GetPageNamesRequest>()(
-  "GetPageNames",
-  {
-    failure: LibreOfficeError,
-    success: Schema.mutable(Schema.Array(Schema.String)),
-    payload: {
-      input: Schema.Uint8Array,
-      inputFormat: InputFormat,
-    },
+export class GetPageNamesRequest extends Rpc.make("GetPageNames", {
+  error: LibreOfficeError,
+  success: Schema.mutable(Schema.Array(Schema.String)),
+  payload: {
+    input: Schema.Uint8Array,
+    inputFormat: InputFormat,
   },
-) {}
+}) {}
 
-export const LibreOfficeRequest = Schema.Union(
+export class LibreOfficeRpcs extends RpcGroup.make(
   ConvertRequest,
   GetPageCountRequest,
   GetDocumentInfoRequest,
@@ -223,6 +202,4 @@ export const LibreOfficeRequest = Schema.Union(
   RenderPageFullQualityRequest,
   GetDocumentTextRequest,
   GetPageNamesRequest,
-);
-
-export type LibreOfficeRequest = Schema.Schema.Type<typeof LibreOfficeRequest>;
+) {}

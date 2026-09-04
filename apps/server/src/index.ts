@@ -1,14 +1,12 @@
+import { LibreOfficeApi } from "@effect-libreoffice/api";
+import { Effect, FileSystem, Layer } from "effect";
 import {
-  FileSystem,
-  HttpApiBuilder,
-  HttpApiScalar,
   HttpClient,
   HttpClientRequest,
-  HttpLayerRouter,
+  HttpRouter,
   HttpServerResponse,
-} from "@effect/platform";
-import { LibreOfficeApi } from "@effect-libreoffice/api";
-import { Effect, Layer, Stream } from "effect";
+} from "effect/unstable/http";
+import { HttpApiBuilder, HttpApiScalar } from "effect/unstable/httpapi";
 import { LibreOffice } from "effect-libreoffice";
 
 // LibreOfficeApi route implementation
@@ -42,7 +40,7 @@ export const ConvertRoute = HttpApiBuilder.group(
             outputFormat: req.payload.format,
           });
 
-          return HttpServerResponse.stream(Stream.make(result.data));
+          return HttpServerResponse.uint8Array(result.data);
         }),
       )
       .handle(
@@ -97,7 +95,7 @@ export const ConvertRoute = HttpApiBuilder.group(
             outputFormat: req.payload.format,
           });
 
-          return HttpServerResponse.stream(Stream.make(result.data));
+          return HttpServerResponse.uint8Array(result.data);
         }),
       ),
 );
@@ -109,17 +107,12 @@ export const ManagementRoute = HttpApiBuilder.group(
     handlers.handle("health", () => Effect.succeed({ status: "ok" as const })),
 );
 
-export const HttpApiRoutes = HttpLayerRouter.addHttpApi(LibreOfficeApi, {
+export const HttpApiRoutes = HttpApiBuilder.layer(LibreOfficeApi, {
   openapiPath: "/docs/openapi.json",
-}).pipe(
-  // Provide the api handlers layer
-  Layer.provide(ConvertRoute),
-  Layer.provide(ManagementRoute),
-);
+}).pipe(Layer.provide(ConvertRoute), Layer.provide(ManagementRoute));
 
 // Create a /docs route for the API documentation
-export const DocsRoute = HttpApiScalar.layerHttpLayerRouterCdn({
-  api: LibreOfficeApi,
+export const DocsRoute = HttpApiScalar.layerCdn(LibreOfficeApi, {
   path: "/docs",
   scalar: {
     defaultOpenAllTags: true,
@@ -127,7 +120,7 @@ export const DocsRoute = HttpApiScalar.layerHttpLayerRouterCdn({
 });
 
 // redirect from "/" to "/docs"
-export const RedirectRoute = HttpLayerRouter.add("GET", "/", () =>
+export const RedirectRoute = HttpRouter.add("GET", "/", () =>
   Effect.succeed(HttpServerResponse.redirect("/docs")),
 );
 
