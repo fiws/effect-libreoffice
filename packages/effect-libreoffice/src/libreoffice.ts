@@ -107,6 +107,6 @@ export interface LibreOffice {
  * @category tags
  * @since 2.0.0
  */
-export const LibreOffice = Context.GenericTag<LibreOffice>(
+export const LibreOffice = Context.Service<LibreOffice>(
   "effect-libreoffice/LibreOffice",
 );

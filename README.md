@@ -15,7 +15,7 @@ Starting with version `2.x.x`, `effect-libreoffice` executes conversions directl
 Install the library along with its peer dependencies:
 
 ```bash
-pnpm add effect-libreoffice effect @effect/platform
+pnpm add effect-libreoffice effect@rc @effect/platform-node@rc
 ```
 
 You must also install the WebAssembly converter package:
@@ -27,9 +27,8 @@ pnpm add @matbee/libreoffice-converter
 ## Usage
 
 ```typescript
-import { NodeContext } from "@effect/platform-node";
-import { Effect, Layer } from "effect";
-import { FileSystem } from "@effect/platform";
+import { NodeServices } from "@effect/platform-node";
+import { Effect, FileSystem, Layer } from "effect";
 import { LibreOffice } from "effect-libreoffice";
 import { LibreOfficeNode } from "effect-libreoffice/node";
 
@@ -56,7 +55,7 @@ const program = Effect.gen(function* () {
   console.log(`The document has ${pageCount} pages.`);
 });
 
-const MainLayer = Layer.mergeAll(LibreOfficeNode.layer, NodeContext.layer);
+const MainLayer = Layer.mergeAll(LibreOfficeNode.layer, NodeServices.layer);
 
 program.pipe(Effect.provide(MainLayer), Effect.runPromise);
 ```

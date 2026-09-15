@@ -10,10 +10,9 @@
   },
   "dependencies": {
     "@effect-libreoffice/api": "workspace:*",
-    "@effect/platform": "^0.96.1",
-    "@effect/platform-node": "^0.107.0",
+    "@effect/platform-node": "4.0.0-rc.112",
     "@matbee/libreoffice-converter": "^2.6.0",
-    "effect": "^3.21.3",
+    "effect": "4.0.0-rc.112",
     "effect-libreoffice": "workspace:*"
   },
   "exports": {
