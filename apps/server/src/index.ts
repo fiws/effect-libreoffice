@@ -5,8 +5,8 @@ import {
   HttpClientRequest,
   HttpRouter,
   HttpServerResponse,
-} from "effect/unstable/http";
-import { HttpApiBuilder, HttpApiScalar } from "effect/unstable/httpapi";
+} from "effect/http";
+import { HttpApiBuilder, HttpApiScalar } from "effect/http-api";
 import { LibreOffice } from "effect-libreoffice";
 
 // LibreOfficeApi route implementation

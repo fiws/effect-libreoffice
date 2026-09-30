@@ -6,18 +6,14 @@ import {
   NodeRuntime,
 } from "@effect/platform-node";
 import { Config, Effect, Layer, Logger } from "effect";
-import { HttpRouter } from "effect/unstable/http";
+import { HttpRouter } from "effect/http";
 import { LibreOfficeNode } from "effect-libreoffice/node";
 import { AllRoutes } from "./index.ts";
 
 const ServerLive = Layer.unwrap(
   Effect.gen(function* () {
-    const h2c = yield* Config.schema(Config.Boolean, "H2C").pipe(
-      Config.withDefault(false),
-    );
-    const port = yield* Config.schema(Config.Port, "PORT").pipe(
-      Config.withDefault(3000),
-    );
+    const h2c = yield* Config.Boolean("H2C").pipe(Config.withDefault(false));
+    const port = yield* Config.Port("PORT").pipe(Config.withDefault(3000));
     return h2c
       ? NodeHttpServer.layer(() => createServerH2() as unknown as Server, {
           port,

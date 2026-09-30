@@ -1,6 +1,5 @@
 import { Effect, Layer, Option } from "effect";
-import { RpcClient } from "effect/unstable/rpc";
-import type { RpcClientError } from "effect/unstable/rpc/RpcClientError";
+import { RpcClient, type RpcClientError } from "effect/rpc";
 import { LibreOfficeError } from "../error.ts";
 import { LibreOffice } from "../libreoffice.ts";
 import { LibreOfficeRpcs } from "./schema.ts";
@@ -11,7 +10,10 @@ const clientLayer = Layer.effect(
     const client = yield* RpcClient.make(LibreOfficeRpcs);
 
     const mapErrors = <A>(
-      effect: Effect.Effect<A, LibreOfficeError | RpcClientError>,
+      effect: Effect.Effect<
+        A,
+        LibreOfficeError | RpcClientError.RpcClientError
+      >,
     ) =>
       effect.pipe(
         Effect.catchTag("RpcClientError", (error) =>

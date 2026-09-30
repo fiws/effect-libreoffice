@@ -1,4 +1,4 @@
-import { HttpApiClient } from "effect/unstable/httpapi";
+import { HttpApiClient } from "effect/http-api";
 import { LibreOfficeApi } from "./domain.ts";
 
 export const make = (options?: Parameters<typeof HttpApiClient.make>[1]) =>
