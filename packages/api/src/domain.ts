@@ -1,12 +1,12 @@
 import { Effect, Schema } from "effect";
-import { Multipart } from "effect/unstable/http";
+import { Multipart } from "effect/http";
 import {
   HttpApi,
   HttpApiEndpoint,
   HttpApiGroup,
   HttpApiSchema,
   OpenApi,
-} from "effect/unstable/httpapi";
+} from "effect/http-api";
 import { LibreOffice } from "effect-libreoffice";
 
 // #MARK: Domain Schemas

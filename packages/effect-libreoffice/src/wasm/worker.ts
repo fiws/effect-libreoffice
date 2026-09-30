@@ -5,7 +5,7 @@ import {
 // @ts-expect-error untyped wasm loader
 import loader from "@matbee/libreoffice-converter/wasm/loader";
 import { Effect, Layer } from "effect";
-import { RpcServer } from "effect/unstable/rpc";
+import { RpcServer } from "effect/rpc";
 import { LibreOfficeError } from "../error.ts";
 import { LibreOfficeRpcs } from "./schema.ts";
 

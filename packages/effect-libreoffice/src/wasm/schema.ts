@@ -1,5 +1,5 @@
 import { Schema } from "effect";
-import { Rpc, RpcGroup } from "effect/unstable/rpc";
+import { Rpc, RpcGroup } from "effect/rpc";
 import { LibreOfficeError } from "../error.ts";
 
 export const InputFormat = Schema.Literals([
@@ -193,7 +193,7 @@ export class GetPageNamesRequest extends Rpc.make("GetPageNames", {
   },
 }) {}
 
-export class LibreOfficeRpcs extends RpcGroup.make(
+export const LibreOfficeRpcs = RpcGroup.make(
   ConvertRequest,
   GetPageCountRequest,
   GetDocumentInfoRequest,
@@ -202,4 +202,4 @@ export class LibreOfficeRpcs extends RpcGroup.make(
   RenderPageFullQualityRequest,
   GetDocumentTextRequest,
   GetPageNamesRequest,
-) {}
+);

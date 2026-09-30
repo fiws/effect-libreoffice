@@ -1,6 +1,6 @@
 import { NodeRuntime, NodeWorkerRunner } from "@effect/platform-node";
 import { Effect, Layer } from "effect";
-import { RpcServer } from "effect/unstable/rpc";
+import { RpcServer } from "effect/rpc";
 import { layerWorker } from "./worker.ts";
 
 const runner = layerWorker.pipe(
