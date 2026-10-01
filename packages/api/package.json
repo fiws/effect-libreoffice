@@ -1,6 +1,6 @@
 {
   "name": "@effect-libreoffice/api",
-  "version": "2.0.0-rc.118",
+  "version": "2.0.0",
   "type": "module",
   "description": "API Schema for LibreOffice microservice.",
   "author": "Filip Weiss <me@fiws.net>",
@@ -24,6 +24,6 @@
     "effect-libreoffice": "workspace:*"
   },
   "peerDependencies": {
-    "effect": "^4.0.0-rc.118"
+    "effect": "^4.0.0"
   }
 }

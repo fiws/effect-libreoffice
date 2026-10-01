@@ -1,6 +1,6 @@
 {
   "name": "effect-libreoffice",
-  "version": "2.0.0-rc.118",
+  "version": "2.0.0",
   "type": "module",
   "description": "A effect based LibreOffice converter library. Can convert docx to pdf.",
   "author": "Filip Weiss <me@fiws.net>",
@@ -22,9 +22,9 @@
     "build": "tsdown"
   },
   "peerDependencies": {
-    "@effect/platform-node": "^4.0.0-rc.118",
+    "@effect/platform-node": "^4.0.0",
     "@matbee/libreoffice-converter": "^2.5.1",
-    "effect": "^4.0.0-rc.118"
+    "effect": "^4.0.0"
   },
   "peerDependenciesMeta": {
     "@effect/platform-node": {
@@ -35,7 +35,7 @@
     }
   },
   "devDependencies": {
-    "@effect/platform-node": "4.0.0-rc.118",
-    "effect": "4.0.0-rc.118"
+    "@effect/platform-node": "4.0.0",
+    "effect": "4.0.0"
   }
 }
