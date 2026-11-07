@@ -24,7 +24,6 @@
 - **Layers & Services**:
   - Define services using `Context.Tag`.
 
-
 ### Testing
 
 - Use `@effect/vitest` for testing.
@@ -59,4 +58,3 @@ export class LibreOfficeError extends Data.TaggedError("LibreOfficeError")<{
 ```
 
 When handling errors, checking the `reason` field is common.
-
